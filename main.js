@@ -38,6 +38,11 @@ async function getErc20Balance(tokenAddr, userAddr) {
     return balance;
 }
 
+async function getErc1155BalanceBatch(contractAddr, tokenAddrs, userAddr) {
+    const contract = await new ethers.Contract(contractAddr, constants.wrapperAbi, provider);
+    const balances = await contract.balanceOfBatch([userAddr], tokenAddrs);
+}
+
 // work to perform after connection is established
 async function postConnection(userAddr) {
     // populate address in top right
@@ -47,11 +52,15 @@ async function postConnection(userAddr) {
     for (let i = 1; i < 30; i++) {
         const currentSymbol = "CRO" + i;
         getErc20Balance(constants.curioAddresses[currentSymbol], userAddr).then(balance => {
-            console.log("populating " + currentSymbol);
-            console.log("balance: " + balance);
-            document.getElementById("nav-card-" + i + "-balance").innerText = balance;
+            console.log("erc20 " + currentSymbol + " balance: " + balance);
+            document.getElementById("nav-card-erc20-" + i + "-balance").innerText = balance;
         });
     }
+
+    // populate erc1155 balances
+//    getErc1155BalanceBatch(constants.wrapperAddr, Object.values(constants.curioAddresses), userAddr).then(balances => {
+//        console.log("erc1155 balances: " + balances);
+//    });
 }
 
 async function initialize() {

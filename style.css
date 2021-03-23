@@ -18,9 +18,9 @@ a {
 /* NAV */
 
 nav {
-    width: 20%;
-    display: flex;
-    flex-direction: column;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 60% 1fr;
 }
 
 nav .nav-card {
@@ -40,7 +40,7 @@ main {
     position: fixed;
     top: 0;
     left: 20%;
-    width: 80%;
+    width: 60%;
 }
 
 /* HEADER */
