@@ -11,6 +11,40 @@ a {
     color: black;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
+/* NAV */
+
+nav {
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+}
+
+nav .nav-card {
+    display: block;
+    margin: 0.5em;
+    padding: 0.5em;
+    background: #ffffff33;
+}
+
+nav img {
+    height: 200px;
+}
+
+/* MAIN */
+
+main {
+    position: fixed;
+    top: 0;
+    left: 20%;
+    width: 80%;
+}
+
+/* HEADER */
+
 header {
     padding: 1em 0;
     margin: 1em 0;
@@ -18,6 +52,7 @@ header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    background: #ffffff33;
 }
 
 header h1 {
@@ -31,6 +66,3 @@ header #web3 {
     padding: 0.25em;
 }
 
-.pointer {
-    cursor: pointer;
-}

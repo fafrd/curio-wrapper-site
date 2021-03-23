@@ -11,18 +11,6 @@ function isEthereumAvailable() {
     Boolean(ethereum);
 }
 
-function fillAddress(addr) {
-    document.getElementById("web3").innerText = "connected as " + addr.substring(0, 5) + "…" + addr.substring(addr.length-3);
-}
-
-const getKiancoinContract = async () => await new ethers.Contract(kianAddress, kianAbi, provider);
-async function getErc20Balance(tokenAddr, userAddr) {
-    console.log("fetching balance for tokenAddr: " + tokenAddr);
-    const contract = await new ethers.Contract(tokenAddr, constants.erc20Abi, provider);
-    const balance = await contract.balanceOf(userAddr);
-    console.log("balance: " + balance);
-}
-
 async function connectWallet() {
     console.log("connectWallet");
     await ethereum.request({
@@ -40,11 +28,30 @@ async function connectWallet() {
     postConnection(accts[0]);
 }
 
+async function getErc20Balance(tokenAddr, userAddr) {
+    //console.log("fetching balance for tokenAddr: " + tokenAddr);
+    //await new Promise(resolve => setTimeout(resolve, Math.random() * 500));
+
+    const contract = await new ethers.Contract(tokenAddr, constants.erc20Abi, provider);
+    const balance = await contract.balanceOf(userAddr);
+    //console.log("balance: " + balance);
+    return balance;
+}
+
 // work to perform after connection is established
 async function postConnection(userAddr) {
-    fillAddress(userAddr);
-    // pull down the user's card info
-    const result = getErc20Balance(constants.curioAddresses["CRO1"], userAddr);
+    // populate address in top right
+    document.getElementById("web3").innerText = "connected as " + userAddr.substring(0, 5) + "…" + userAddr.substring(userAddr.length-3);
+
+    // populate erc20 balances
+    for (let i = 1; i < 30; i++) {
+        const currentSymbol = "CRO" + i;
+        getErc20Balance(constants.curioAddresses[currentSymbol], userAddr).then(balance => {
+            console.log("populating " + currentSymbol);
+            console.log("balance: " + balance);
+            document.getElementById("nav-card-" + i + "-balance").innerText = balance;
+        });
+    }
 }
 
 async function initialize() {
