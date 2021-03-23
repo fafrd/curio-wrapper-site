@@ -30,3 +30,7 @@ header #web3 {
     border: 0.2em solid black;
     padding: 0.25em;
 }
+
+.pointer {
+    cursor: pointer;
+}
