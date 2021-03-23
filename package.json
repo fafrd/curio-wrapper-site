@@ -1,0 +1,17 @@
+{
+  "name": "curio-wrapper",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Kian",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
+  },
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "ethers": "^5.0.32"
+  }
+}
