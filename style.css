@@ -15,6 +15,16 @@ a {
     cursor: pointer;
 }
 
+/* FOOTER */
+
+footer {
+    z-index: 2;
+    background: #ffffff33;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
 /* NAV */
 
 nav {
@@ -38,9 +48,12 @@ nav img {
 
 main {
     position: fixed;
+    overflow-y: scroll;
+    width: 60%;
+    height: 100%;
     top: 0;
     left: 20%;
-    width: 60%;
+    background: gray;
 }
 
 /* HEADER */
