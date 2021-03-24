@@ -19,7 +19,7 @@ a {
 
 footer {
     z-index: 2;
-    background: #ffffff33;
+    background: #ffffff;
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -44,18 +44,6 @@ nav img {
     height: 200px;
 }
 
-/* MAIN */
-
-main {
-    position: fixed;
-    overflow-y: scroll;
-    width: 60%;
-    height: 100%;
-    top: 0;
-    left: 20%;
-    background: gray;
-}
-
 /* HEADER */
 
 header {
@@ -68,14 +56,32 @@ header {
     background: #ffffff33;
 }
 
-header h1 {
-    display: inline-block;
-    margin: 0;
-}
-
 header #web3 {
-    float: right;
     border: 0.2em solid black;
     padding: 0.25em;
 }
 
+/* MAIN */
+
+main {
+    position: fixed;
+    overflow-y: scroll;
+    width: 60%;
+    height: 100%;
+    top: 0;
+    left: 20%;
+    background: gray;
+}
+
+main #rows {
+    display: flex;
+    flex-wrap: wrap;
+    background: #ffffff33;
+}
+
+main .row {
+    width: 100%;
+    border: 2px solid red;
+    display: grid;
+    grid-template-columns: 25% 25% 25% 25%;
+}
