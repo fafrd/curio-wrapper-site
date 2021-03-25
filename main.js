@@ -8,7 +8,7 @@ import * as constants from "./rinkeby-constants.js"
 //const debugAddress = "0x85a9d6258b6a2cc264fdbfb60c5e3d2678b4ef7e";
 const debugAddress = "0x49468f702436d1e590895ffa7155bcd393ce52ae";
 
-const numCards = 5; // debug
+const numCards = 2; // debug
 
 const { ethereum } = window;
 if (ethereum) {
@@ -57,25 +57,68 @@ async function getErc1155BalanceBatch(contractAddr, userAddr) {
 
 async function handleCardClick(event) {
     let currentCard, currentType;
-    if (event.path[1].id.startsWith("nav-card-erc20")) {
-        currentCard = Number(event.path[1].id.substring(15));
+    let currentElement, otherElement; // otherElement is erc1155 if current is erc20, etc
+    currentElement = event.path.find(e => e.localName == "article");
+    if (!currentElement) {
+        throw Error("handleCardClick: unable to find <article> element!");
+    }
+
+    if (currentElement.id.startsWith("nav-card-erc20")) {
+        currentCard = Number(currentElement.id.substring(15));
         currentType = "erc20";
-    } else if (event.path[1].id.startsWith("nav-card-erc1155")) {
-        currentCard = Number(event.path[1].id.substring(17));
+        otherElement = document.getElementById("nav-card-erc1155-" + currentCard);
+    } else if (currentElement.id.startsWith("nav-card-erc1155")) {
+        currentCard = Number(currentElement.id.substring(17));
         currentType = "erc1155";
+        otherElement = document.getElementById("nav-card-erc20-" + currentCard);
     }
 
     console.log("handleCardClick: " + currentType + " #" + currentCard);
 
-    // TODO- set Selected state.
-    //     this means hide/unhide table row,
-    //     and overlay the card nav image as "selected" or not
+    console.log(currentElement.classList);
+    if (currentElement.classList.contains("unselected")) {
+        // card is unselected- set to selected
+        currentElement.classList.remove("unselected");
+        currentElement.classList.add("selected");
+        otherElement.classList.remove("unselected");
+        otherElement.classList.add("selected");
+
+        // unhide table row
+        document.getElementById("row-" + currentCard).classList.remove("row-displaynone");
+        document.getElementById("row-" + currentCard).classList.add("row-displayinitial");
+
+        // TODO: apply overlay indicating the card is 'selected'
+        //set currentElement and otherElement to have the selected class
+
+    } else if (currentElement.classList.contains("selected")) {
+        // card is selected- set to unselected
+        currentElement.classList.remove("selected");
+        currentElement.classList.add("unselected");
+        otherElement.classList.remove("selected");
+        otherElement.classList.add("unselected");
+
+        // hide table row
+        document.getElementById("row-" + currentCard).classList.remove("row-displayinitial");
+        document.getElementById("row-" + currentCard).classList.add("row-displaynone");
+
+        // TODO: set how-many-input for row-X to 0, because it's no longer visible
+
+        // TODO: apply overlay indicating the card is no longer 'selected'
+        //set currentElement and otherElement to remove the selected class
+
+    } else {
+        throw Error("handleCardClick: card in neither Selected nor Unselected state!");
+    }
+}
+
+async function handleWrapClick(event) {
+
 }
 
 // work to perform after connection is established
 async function postConnection(userAddr) {
     // populate address in top right
-    document.getElementById("web3").innerText = "connected as " + userAddr.substring(0, 5) + "…" + userAddr.substring(userAddr.length-3);
+    document.getElementById("web3").innerText = "Connected as " + userAddr.substring(0, 5) + "…" + userAddr.substring(userAddr.length-3);
 
     // populate erc20 balances
     for (let i = 1; i <= numCards; i++) {

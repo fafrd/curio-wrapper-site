@@ -148,9 +148,16 @@ main {
     border: var(--border);
 }
 
-
 main .row__gridfucker {
     width: 100%;
     display: grid;
     grid-template-columns: 25% 25% 25% 25%;
+}
+
+.row-displaynone {
+    display: none;
+}
+
+.row-displayinitial {
+    display: initial;
 }
