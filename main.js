@@ -4,9 +4,10 @@ import 'regenerator-runtime/runtime'
 import * as constants from "./rinkeby-constants.js"
 
 // Override the owner address. Used instead of metamask address if set
-//const debugAddress = "0x3be11d51f5b1353b305eaf926376ed437634c3dc";
-//const debugAddress = "0x85a9d6258b6a2cc264fdbfb60c5e3d2678b4ef7e";
-const debugAddress = "0x49468f702436d1e590895ffa7155bcd393ce52ae";
+var debugAddress;
+//debugAddress = "0x3be11d51f5b1353b305eaf926376ed437634c3dc";
+//debugAddress = "0x85a9d6258b6a2cc264fdbfb60c5e3d2678b4ef7e";
+//debugAddress = "0x49468f702436d1e590895ffa7155bcd393ce52ae";
 
 const numCards = 2; // debug
 
@@ -75,7 +76,6 @@ async function handleCardClick(event) {
 
     console.log("handleCardClick: " + currentType + " #" + currentCard);
 
-    console.log(currentElement.classList);
     if (currentElement.classList.contains("unselected")) {
         // card is unselected- set to selected
         currentElement.classList.remove("unselected");
@@ -89,6 +89,12 @@ async function handleCardClick(event) {
 
         // TODO: apply overlay indicating the card is 'selected'
         //set currentElement and otherElement to have the selected class
+
+        //[11:32 PM] designer: When card is selected:
+        //Add .nav-card__selected class to the <article id="nav-card-erc1155-1" class="nav-card nav-card__selected">
+        //Add .nav-card__grayscale class to the  <img class="nav-card__image" src="images/01.jpg" alt="Curio1">
+        //Set .nav-card__overlay to display: block
+        //[11:32 PM] designer: Remember to undo these things once the card is no longer selected.
 
     } else if (currentElement.classList.contains("selected")) {
         // card is selected- set to unselected
@@ -111,8 +117,43 @@ async function handleCardClick(event) {
     }
 }
 
-async function handleWrapClick(event) {
+async function calculateTotalToWrap() {
+    // return a map like
+    /*
+    {
+        "toWrap": {
+            1: 0,
+            2: 4,
+            ...
+            30: 10
+        },
+        "toUnwrap": {
+            1: 0,
+            2: 4,
+            ...
+            30: 10
+        }
+    }
+    */
+    // these will be used to calculate total for display, and to pass args to wrapBatch and unwrapBatch
+}
 
+async function handleWrapClick(event) {
+    let currentElement = event.path.find(e => e.id == "wrap-button" || e.id == "unwrap-button");
+    if (!currentElement) {
+        throw Error("handleWrapClick: unable to find wrap/unwrap button element!");
+    }
+
+    let action = currentElement.id == "wrap-button" ? "wrap" : "unwrap";
+    console.log("action: " + action);
+
+    const toWrap = calculateTotalToWrap();
+
+    // there's 4 possible functions to execute from here:
+    // wrap or unwrap, if only 1 type of card to change
+    // wrapBatch or unwrapBatch, if multiple types of card to change
+
+    // TODO
 }
 
 // work to perform after connection is established
@@ -149,11 +190,26 @@ async function postConnection(userAddr) {
         erc1155Element.addEventListener("click", handleCardClick);
         erc1155Element.classList.add("pointer");
     }
+
+    // bind event listeners to Wrap and Unwrap buttons
+    const wrapButton = document.getElementById("wrap-button");
+    wrapButton.addEventListener("click", handleWrapClick);
+    wrapButton.classList.add("pointer");
+
+    const unwrapButton = document.getElementById("unwrap-button");
+    console.log(unwrapButton);
+    unwrapButton.addEventListener("click", handleWrapClick);
+    unwrapButton.classList.add("pointer");
+
 }
 
 async function initialize() {
     console.log("initialize");
     //console.log(JSON.stringify(constants.wrapperAbi));
+
+    if (debugAddress) {
+        console.error("WARNING! WEBSITE IN DEBUG MODE: user address forced to " + debugAddress);
+    }
 
     // detect if metamask is already connected; set button in top right
     provider.listAccounts().then(accts => {
