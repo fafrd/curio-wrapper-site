@@ -1,0 +1,54 @@
+:root {
+    /* colors */
+    --black: #000000;
+    --white: #ffffff;
+    --red:#F24645;
+    --pink:#FFECEC;
+    /* border */
+    --border: 1px solid var(--red);
+  }
+
+html {
+    font-family: 'Roboto Mono';
+    font-weight: 500;
+    font-size: 0.9em;
+    color: var(--red);
+}
+
+input::placeholder {
+    opacity: 1;
+    text-align: center;
+    font-family: Roboto Mono;
+    font-weight: 500;
+    color: var(--red);
+}
+
+
+button,
+input,
+optgroup,
+select,
+textarea,html input[type="button"],
+input[type="reset"],
+input[type="submit"],button[disabled],
+html input[disabled],button::-moz-focus-inner,
+input::-moz-focus-inner, input[type="checkbox"],
+input[type="radio"], input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button, input[type="search"], input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+    background-image: none;
+    background-color: transparent;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    font-family: Roboto Mono;
+    font-family: 'Roboto Mono';
+    font-weight: 500;
+    font-size: 0.9em;
+    line-height: 0;
+    font-variant: stacked-fractions;
+    color: var(--red);
+    opacity: 1;
+    text-align: center;
+    outline: 0;
+}

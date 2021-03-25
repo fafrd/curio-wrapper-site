@@ -1,0 +1,156 @@
+body {
+    background: var(--white);
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+/* FOOTER */
+
+footer {
+    z-index: 2;
+    background: #ffffff;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+footer h1 {
+    font-size: 7em;
+    text-align: center;
+}
+
+footer .footerfucker {
+    display: grid; /* match what's set up for nav */
+    grid-template-columns: 1fr 60% 1fr;
+}
+
+footer .footerfucker > div {
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+footer .footer-selector .title {
+    width: 100%;
+}
+
+footer .footer-selector .select-button {
+    flex-grow: 1;
+}
+
+footer .footer-center {
+    position: relative;
+}
+
+footer .footer-center-bottom {
+    height: 50%;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+}
+
+.footer-center-bottom p {
+    flex-grow: 1;
+}
+
+
+/* NAV SCAFFOLDING */
+
+nav {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 60% 1fr;
+
+    /* Styles */
+    background-color: var(--pink);
+}
+
+nav .nav-card {
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 2em;
+}
+
+nav img {
+    width: 100%;
+}
+
+/* Card Shit */
+.label__wrapper {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.cell__red {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+.cell__white {
+    background-color: var(--white);
+}
+
+.cell__pink {
+    background-color: var(--pink);
+}
+
+.cell {
+    border: var(--border);
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    min-height: 32px;
+
+}
+
+.balance__container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+/* HEADER GLOBAL */
+
+.circle {
+    background-color: #33ED2F;
+    height: 12px;
+    width: 12px;
+    border-radius: 100%;
+    margin-right: 10px;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+/* MAIN */
+
+main {
+    position: fixed;
+    overflow-y: scroll;
+    width: 60%;
+    height: 100%;
+    top: 0;
+    left: 20%;
+    background-color: var(--white);
+    border: var(--border);
+}
+
+
+main .row__gridfucker {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 25% 25% 25% 25%;
+}

@@ -1,123 +1,89 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/reset.css">
+    <link rel="stylesheet" href="styles/var.css">
+    <link rel="stylesheet" href="styles/main.css">
     <script src="./main.js"></script>
+    <title>Curio Wallet</title>
 </head>
 <body>
+<!-- PAIR -->
     <nav>
-        <div id="nav-card-erc20-1" class="nav-card card-left">
+        <article id="nav-card-erc1155-1" class="nav-card">
             <img src="images/01.jpg" alt="Curio1">
-            <span>balance: </span><span id="nav-card-erc20-1-balance" class="nav-balance"></span>
-        </div>
+            <div class="label__wrapper">
+                <p class="cell cell__white">CRO1</p>
+                <div class="balance__container">
+                    <p class="cell cell__white">Balance</p><p id="nav-card-erc1155-1-balance" class="cell cell__red">10</p>
+                </div>
+            </div>
+        </article>
+
         <div class="spacer"></div>
-        <div id="nav-card-erc1155-1" class="nav-card card-right">
+        <article id="nav-card-erc1155-1" class="nav-card">
             <img src="images/01.jpg" alt="Curio1">
-            <span>balance: </span><span id="nav-card-erc1155-1-balance" class="nav-balance"></span>
-        </div>
-
-        <div id="nav-card-erc20-2" class="nav-card">
-            <img src="images/02.jpg" alt="Curio2">
-            <span>balance: </span><span id="nav-card-erc20-2-balance" class="nav-balance"></span>
-        </div>
-        <div class="spacer"></div>
-        <div id="nav-card-erc1155-2" class="nav-card">
-            <img src="images/02.jpg" alt="Curio2">
-            <span>balance: </span><span id="nav-card-erc1155-2-balance" class="nav-balance"></span>
-        </div>
-
-        <div id="nav-card-erc20-3" class="nav-card">
-            <img src="images/03.jpg" alt="Curio3">
-            <span>balance: </span><span id="nav-card-erc20-3-balance" class="nav-balance"></span>
-        </div>
-        <div class="spacer"></div>
-        <div id="nav-card-erc1155-3" class="nav-card">
-            <img src="images/03.jpg" alt="Curio3">
-            <span>balance: </span><span id="nav-card-erc1155-3-balance" class="nav-balance"></span>
-        </div>
-
-        <div id="nav-card-erc20-4" class="nav-card">
-            <img src="images/04.jpg" alt="Curio4">
-            <span>balance: </span><span id="nav-card-erc20-4-balance" class="nav-balance"></span>
-        </div>
-        <div class="spacer"></div>
-        <div id="nav-card-erc1155-4" class="nav-card">
-            <img src="images/04.jpg" alt="Curio4">
-            <span>balance: </span><span id="nav-card-erc1155-4-balance" class="nav-balance"></span>
-        </div>
-
-        <div id="nav-card-erc20-5" class="nav-card">
-            <img src="images/05.jpg" alt="Curio5">
-            <span>balance: </span><span id="nav-card-erc20-5-balance" class="nav-balance"></span>
-        </div>
-        <div class="spacer"></div>
-        <div id="nav-card-erc1155-5" class="nav-card">
-            <img src="images/05.jpg" alt="Curio5">
-            <span>balance: </span><span id="nav-card-erc1155-5-balance" class="nav-balance"></span>
-        </div>
+            <div class="label__wrapper">
+                <p class="cell cell__red">WRAPPED</p>
+                <p class="cell cell__white">CRO1</p>
+                <div class="balance__container">
+                    <p class="cell cell__white">Balance</p><p id="nav-card-erc1155-1-balance" class="cell cell__red">10</p>
+                </div>
+            </div>
+        </article>
     </nav>
 
+<!-- CENTER SHIT -->
     <main>
-        <header>
-            <span id="web3">Connect Wallet</span>
+        <header class="header__connect cell cell__white">
+            <span class="circle"></span> <p id="web3">Connected to 0x518...240</p>
         </header>
 
-        <div id="rows">
-            <div class="row">
-                <div class="balance-label">Unwrapped Balance</div>
-                <div class="balance-value" id="main-card-erc20-1-balance">0</div>
-                <div class="balance-label">Wrapped Balance</div>
-                <div class="balance-value" id="main-card-erc1155-1-balance">0</div>
-                <div class="balance-label">How many to wrap?</div>
-                <div class="how-many-input">0</div>
-                <div class="balance-label">How many to unwrap?</div>
-                <div class="how-many-input">0</div>
-            </div>
-            <div class="row">
-                <div class="balance-label">Unwrapped Balance</div>
-                <div class="balance-value" id="main-card-erc20-2-balance">0</div>
-                <div class="balance-label">Wrapped Balance</div>
-                <div class="balance-value" id="main-card-erc1155-2-balance">0</div>
-                <div class="balance-label">How many to wrap?</div>
-                <div class="how-many-input">0</div>
-                <div class="balance-label">How many to unwrap?</div>
-                <div class="how-many-input">0</div>
-            </div>
-            <div class="row">
-                <div class="balance-label">Unwrapped Balance</div>
-                <div class="balance-value" id="main-card-erc20-3-balance">0</div>
-                <div class="balance-label">Wrapped Balance</div>
-                <div class="balance-value" id="main-card-erc1155-3-balance">0</div>
-                <div class="balance-label">How many to wrap?</div>
-                <div class="how-many-input">0</div>
-                <div class="balance-label">How many to unwrap?</div>
-                <div class="how-many-input">0</div>
-            </div>
-            <div class="row">
-                <div class="balance-label">Unwrapped Balance</div>
-                <div class="balance-value" id="main-card-erc20-4-balance">0</div>
-                <div class="balance-label">Wrapped Balance</div>
-                <div class="balance-value" id="main-card-erc1155-4-balance">0</div>
-                <div class="balance-label">How many to wrap?</div>
-                <div class="how-many-input">0</div>
-                <div class="balance-label">How many to unwrap?</div>
-                <div class="how-many-input">0</div>
-            </div>
-            <div class="row">
-                <div class="balance-label">Unwrapped Balance</div>
-                <div class="balance-value" id="main-card-erc20-5-balance">0</div>
-                <div class="balance-label">Wrapped Balance</div>
-                <div class="balance-value" id="main-card-erc1155-5-balance">0</div>
-                <div class="balance-label">How many to wrap?</div>
-                <div class="how-many-input">0</div>
-                <div class="balance-label">How many to unwrap?</div>
-                <div class="how-many-input">0</div>
-            </div>
-        </div>
-
+        <section id="rows">
+            <article class="row">
+                <header class="row__header cell cell__red">CRO1</header>
+                <div class="row__gridfucker">
+                    <p class="balance-label cell">Unwrapped Balance</p>
+                    <p class="balance-value cell" id="main-card-erc20-1-balance">0</p>
+                    <p class="balance-label cell">Wrapped Balance</p>
+                    <p class="balance-value cell" id="main-card-erc1155-1-balance">0</p>
+                    <label for="wrap" class="balance-label cell">How many to wrap?</label>
+                    <input for="wrap" class="how-many-input cell cell__pink" placeholder="0"></input>
+                    <label for="unwrap" class="balance-label cell">How many to unwrap?</label>
+                    <input for="unwrap" class="how-many-input cell cell__pink" placeholder="0"></input>
+                </div>
+            </article>
+        </section>
+ 
     </main>
 
+<!-- FOOTER SHIT -->
     <footer>
-        <h1>wallet.curio.cards</h1>
+        <div class="footerfucker">
+            <div class="footer-selector">
+                <p class="cell title cell__red">Unwrapped Curio Cards</p>
+                <p class="cell select-button cell__pink">Select All</p>
+                <p class="cell select-button cell__pink">Deselect All</p>
+            </div>
+            <div class="footer-center">
+                <div class="footer-center-bottom">
+                    <p class="cell cell__white">Wrap 2 Curio Cards</p>
+                    <p class="cell cell__pink">--right</p>
+                    <p class="cell cell__pink">left--</p>
+                    <p class="cell cell__white">Unwrap 0 Curio Cards</p>
+                </div>
+            </div>
+            <div class="footer-selector">
+                <p class="cell title cell__red">Unwrapped Curio Cards</p>
+                <p class="cell select-button cell__pink">Select All</p>
+                <p class="cell select-button cell__pink">Deselect All</p>
+            </div>
+        </div>
+        <h1>the footer</h1>
     </footer>
 </body>
 </html>
+

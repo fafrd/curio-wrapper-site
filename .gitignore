@@ -4,3 +4,5 @@ node_modules
 .cache
 yarn-error.log
 yarn.lock
+
+.DS_Store
