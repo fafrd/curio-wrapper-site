@@ -8,13 +8,14 @@
     <link rel="stylesheet" href="styles/var.css">
     <link rel="stylesheet" href="styles/main.css">
     <script src="./main.js"></script>
-    <title>Curio Wallet</title>
+    <title>Document</title>
 </head>
 <body>
 <!-- PAIR -->
     <nav>
         <article id="nav-card-erc1155-1" class="nav-card">
-            <img src="images/01.jpg" alt="Curio1">
+            <div class="nav-card__overlay"></div>
+            <img class="nav-card__image" src="images/01.jpg" alt="Curio1">
             <div class="label__wrapper">
                 <p class="cell cell__white">CRO1</p>
                 <div class="balance__container">
@@ -24,8 +25,10 @@
         </article>
 
         <div class="spacer"></div>
+
         <article id="nav-card-erc1155-1" class="nav-card">
-            <img src="images/01.jpg" alt="Curio1">
+            <div class="nav-card__overlay"></div>
+            <img class="nav-card__image" src="images/01.jpg" alt="Curio1">
             <div class="label__wrapper">
                 <p class="cell cell__red">WRAPPED</p>
                 <p class="cell cell__white">CRO1</p>
@@ -57,7 +60,11 @@
                 </div>
             </article>
         </section>
- 
+                        
+        <div class="main__line">
+            <div class="mainbox"></div>
+            <div class="mainbox"></div>
+        </div>
     </main>
 
 <!-- FOOTER SHIT -->
@@ -71,8 +78,8 @@
             <div class="footer-center">
                 <div class="footer-center-bottom">
                     <p class="cell cell__white">Wrap 2 Curio Cards</p>
-                    <p class="cell cell__pink">--right</p>
-                    <p class="cell cell__pink">left--</p>
+                    <p class="cell wrap-button cell__pink">-----&gt;</p>
+                    <p class="cell wrap-button cell__pink">&lt;-----</p>
                     <p class="cell cell__white">Unwrap 0 Curio Cards</p>
                 </div>
             </div>
@@ -82,7 +89,20 @@
                 <p class="cell select-button cell__pink">Deselect All</p>
             </div>
         </div>
-        <h1>the footer</h1>
+        <div class="footerdeco">
+            <div class="footerart">
+                <div class="footerart__wrapper">
+                    <img src="images/curio.svg" alt="">
+                </div>
+                <div class="footerart__wrapper logo">
+                    <img src="images/logo.svg" alt="">
+                </div>
+                <div class="footerart__wrapper">
+                    <img src="images/cards.svg" alt="">
+                </div>
+            </div>
+            <div class="footerlink cell"><a target="_blank" rel="noopener noreferrer" href="https://twitter.com/mycuriocards">@mycuriocards</a></div>
+        </div>
     </footer>
 </body>
 </html>

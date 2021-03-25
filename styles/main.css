@@ -16,11 +16,6 @@ footer {
     width: 100%;
 }
 
-footer h1 {
-    font-size: 7em;
-    text-align: center;
-}
-
 footer .footerfucker {
     display: grid; /* match what's set up for nav */
     grid-template-columns: 1fr 60% 1fr;
@@ -38,6 +33,12 @@ footer .footer-selector .title {
 
 footer .footer-selector .select-button {
     flex-grow: 1;
+}
+
+footer .footer-selector .select-button:hover {
+    background-color: var(--red);
+    color: var(--white);
+    cursor: pointer;
 }
 
 footer .footer-center {
@@ -58,6 +59,44 @@ footer .footer-center-bottom {
     flex-grow: 1;
 }
 
+footer .footer-center .wrap-button {
+    font-size: 18px;
+    letter-spacing: -0.2em;
+}
+
+footer .footer-center .wrap-button:hover {
+    background-color: var(--red);
+    color: var(--white);
+    cursor: pointer;
+}
+
+footer .footerdeco .footerart {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+
+footer .footerdeco .footerart .footerart__wrapper {
+    height: 132px;
+}
+
+footer .footerdeco .footerart .footerart__wrapper img {
+    padding-left: 32px;
+    padding-right: 32px;
+}
+
+footer .footerdeco .footerart .logo {
+    border-left: var(--border);
+    border-right: var(--border);
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
 
 /* NAV SCAFFOLDING */
 
@@ -76,7 +115,33 @@ nav .nav-card {
     width: 150px;
     margin: 0 auto;
     position: relative;
+    margin-top: 2em;
     margin-bottom: 2em;
+    transition: 0.2s ease-in-out;
+}
+
+nav .nav-card:hover {
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    transform: scale(0.95);
+}
+
+nav .nav-card__selected {
+    transform: scale(0.95);
+}
+
+nav .nav-card__overlay{
+    background: var(--red);
+    width: 150px;
+    height: 200px;
+    position: absolute;
+    mix-blend-mode: screen;
+    display: none;
+    z-index: 3;
+}
+
+nav .nav-card__grayscale {
+    filter: grayscale(1)
 }
 
 nav img {
@@ -88,6 +153,7 @@ nav img {
     position: absolute;
     bottom: 0;
     width: 100%;
+    z-index: 4;
 }
 
 .cell__red {
@@ -135,6 +201,11 @@ header {
     align-items: center;
 }
 
+.header__connect {
+    position: sticky;
+    top: 0;
+}
+
 /* MAIN */
 
 main {
@@ -153,4 +224,20 @@ main .row__gridfucker {
     width: 100%;
     display: grid;
     grid-template-columns: 25% 25% 25% 25%;
+}
+
+main .main__line {
+    display: flex;
+    height: calc(100% - 104px);
+    width: 100%;
+    overflow-y: hidden;
+    position: absolute;
+    /* z-index: 5; */
+}
+
+main .mainbox {
+    /* height: 100%; */
+    overflow-y: hidden;
+    width: 100%;
+    border: var(--border);
 }

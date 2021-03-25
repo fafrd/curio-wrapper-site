@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
 :root {
     /* colors */
     --black: #000000;
@@ -8,11 +9,16 @@
     --border: 1px solid var(--red);
   }
 
-html {
+html, a, a:visited, input {
     font-family: 'Roboto Mono';
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.9em;
     color: var(--red);
+    text-align: center;
+}
+
+a:hover {
+    text-decoration: none;
 }
 
 input::placeholder {
@@ -21,6 +27,12 @@ input::placeholder {
     font-family: Roboto Mono;
     font-weight: 500;
     color: var(--red);
+}
+
+input:focus {
+    border: var(--border);
+    outline: none;
+    text-align: center;
 }
 
 
