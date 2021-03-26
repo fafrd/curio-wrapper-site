@@ -80,9 +80,11 @@ async function handleCardClick(event) {
         throw Error("handleCardClick: unable to find <article> element!");
     }
 
-    // remove "click the cards" helper image
     if (document.getElementById("click-da-cards")) {
+        // remove "click the cards" helper image
         document.getElementById("click-da-cards").remove();
+        // show middle dividing line
+        document.getElementById("middle-line").classList.remove("hidden");
     }
 
     if (currentElement.id.startsWith("nav-card-erc20")) {
@@ -174,6 +176,7 @@ async function handleWrapClick(event) {
     const wrapitup = await calculateTotalToWrap();
     console.debug("wrapitup: " + JSON.stringify(wrapitup));
     const wrapperContract = await new ethers.Contract(constants.wrapperAddr, constants.wrapperAbi, signer);
+    const userAddr = await getUserAddr();
 
     // there's 4 possible functions to execute from here:
     // wrap or unwrap, if only 1 type of card to change
@@ -195,18 +198,24 @@ async function handleWrapClick(event) {
             const cardId = Object.keys(nonzeroWrapValues)[0];
             const wrapNum = nonzeroWrapValues[cardId];
 
-            console.debug(wrapperContract.wrap);
             console.debug("cardId: " + cardId);
             console.debug("wrapNum: " + wrapNum);
 
             const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + cardId], constants.erc20Abi, signer);
-            const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
-            console.debug("approvalResult:");
-            console.debug(approvalResult);
-            const receipt = await approvalResult.wait();
-            console.debug("receipt:");
-            console.debug(receipt);
+            // if we have approval already, skip
+            const allowanceToSpend = await erc20Contract.allowance(userAddr, constants.wrapperAddr);
+            console.debug("current allowance: " + allowanceToSpend);
+            if (allowanceToSpend == 0) {
+                // seek approval
+                const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
+                console.debug("approvalResult:");
+                console.debug(approvalResult);
+                const receipt = await approvalResult.wait();
+                console.debug("receipt:");
+                console.debug(receipt);
+            }
 
+            // perform wrap
             const wrapResult = await wrapperContract.wrap(cardId, wrapNum);
             console.debug("wrapResult:");
             const receipt2 = await wrapResult.wait();
@@ -218,7 +227,55 @@ async function handleWrapClick(event) {
         } else {
             console.debug("Wrapping multiple types of cards...");
 
-            console.error("not yet implemented"); // TODO
+            // what do i gotta do here.
+            // 1. get approvals for all erc20s that don't yet have approval
+            // 2. submit bulk txn
+
+            let approvalsRequired = [];
+            for (let i = i; i < Object.keys(nonzeroWrapValues).length; i++) {
+                const cardId = Object.keys(nonzeroWrapValues)[i];
+                console.debug("cardId: " + cardId);
+
+                const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + cardId], constants.erc20Abi, signer);
+                // if we have approval already, skip
+                const allowanceToSpend = await erc20Contract.allowance(userAddr, constants.wrapperAddr);
+                console.debug("current allowance: " + allowanceToSpend);
+                if (allowanceToSpend == 0) {
+                    approvalsRequired.push(cardId);
+                }
+            }
+
+            // TODO report to the user how many approvals are required (via status bar or otherwise)
+
+            console.debug(approvalsRequired.length + " approvals required. executing...");
+            for (let i = 0; i < approvalsRequired.length; i++) {
+                // seek approval
+                const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + approvalsRequired[i]], constants.erc20Abi, signer);
+                const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
+                console.debug("approvalResult:");
+                console.debug(approvalResult);
+                const receipt = await approvalResult.wait();
+                console.debug("receipt:");
+                console.debug(receipt);
+
+                // TODO decrement txns remaining (status bar)
+            }
+
+            // perform wrap
+            const cardIdList = Object.keys(nonzeroWrapValues);
+            let wrapNumList = [];
+            for (let i = 0; i < cardIdList.length; i++) {
+                wrapNumList.push(nonzeroWrapValues[cardIdList[i]]);
+            }
+            console.debug("About to wrap card IDs " + JSON.stringify(cardIdList) + " with balances " + JSON.stringify(wrapNumList));
+            const wrapResult = await wrapperContract.wrapBatch(cardIdList, wrapNumList);
+            console.debug("wrapResult:");
+            const receipt = await wrapResult.wait();
+            console.debug("receipt:");
+            console.debug(receipt);
+
+            // finally, update balances
+            populateBalances();
         }
 
     } else {
@@ -231,7 +288,7 @@ async function handleWrapClick(event) {
         console.debug("nonzeroUnwrapValues: " + JSON.stringify(nonzeroUnwrapValues));
 
         if (Object.keys(nonzeroUnwrapValues).length == 0) {
-            console.debug("No values found to wrap!");
+            console.debug("No values found to unwrap!");
         } else if (Object.keys(nonzeroUnwrapValues).length == 1) {
             console.debug("Unwrapping 1 type of card...");
             const cardId = Object.keys(nonzeroUnwrapValues)[0];
@@ -252,7 +309,20 @@ async function handleWrapClick(event) {
         } else {
             console.debug("Unwrapping multiple types of cards...");
 
-            console.error("not yet implemented"); // TODO
+            const cardIdList = Object.keys(nonzeroUnwrapValues);
+            let unwrapNumList = [];
+            for (let i = 0; i < cardIdList.length; i++) {
+                unwrapNumList.push(nonzeroUnwrapValues[cardIdList[i]]);
+            }
+            console.debug("About to unwrap card IDs " + JSON.stringify(cardIdList) + " with balances " + JSON.stringify(unwrapNumList));
+            const unwrapResult = await wrapperContract.unwrapBatch(cardIdList, unwrapNumList);
+            console.debug("unwrapResult:");
+            const receipt = await unwrapResult.wait();
+            console.debug("receipt:");
+            console.debug(receipt);
+
+            // finally, update balances
+            populateBalances();
         }
 
     }
