@@ -22,36 +22,40 @@ function isEthereumAvailable() {
 }
 
 async function connectWallet() {
-    console.log("connectWallet");
+    console.debug("connectWallet");
     await ethereum.request({
         method: 'eth_requestAccounts'
     });
     const accts = await provider.listAccounts();
     if (accts.length > 0) {
-        document.getElementById("web3").removeEventListener("click", connectWallet);
-        document.getElementById("web3").classList.remove("pointer");
+        document.getElementById("connect-wallet").remove();
     } else {
         throw Error("Connected to ethereum but provider.listAccounts() returned empty!");
     }
 
+    // make connection circle happy
+    document.getElementById("connection-indicator").classList.remove("circle-orange");
+    document.getElementById("connection-indicator").classList.add("circle-green");
     // once connected, perform the next tasks, like populating token balances
     postConnection(debugAddress || accts[0]);
+    // show "click the cards" helper image
+    document.getElementById("click-da-cards").classList.remove("hidden");
 }
 
 async function getUserAddr() {
     return await provider.listAccounts().then(accts => {
         if (accts.length > 0) {
-            console.log("connected! " + (debugAddress || JSON.stringify(accts)));
+            console.debug("connected! " + (debugAddress || JSON.stringify(accts)));
             return (debugAddress || accts[0]);
         } else {
-            console.log("not yet connected!");
+            console.debug("not yet connected!");
             return;
         }
     });
 }
 
 async function getErc20Balance(tokenAddr, userAddr) {
-    //console.log("fetching balance for tokenAddr: " + tokenAddr);
+    //console.debug("fetching balance for tokenAddr: " + tokenAddr);
     //await new Promise(resolve => setTimeout(resolve, Math.random() * 500));
 
     const contract = await new ethers.Contract(tokenAddr, constants.erc20Abi, provider);
@@ -60,7 +64,7 @@ async function getErc20Balance(tokenAddr, userAddr) {
 
 async function getErc1155BalanceBatch(contractAddr, userAddr) {
     const contract = await new ethers.Contract(contractAddr, constants.wrapperAbi, provider);
-    console.log("querying batch... ");
+    console.debug("querying batch... ");
     const userAddrArray = Array(30).fill(userAddr);
     let idArray = Array.from(Array(31).keys());
     idArray.shift();
@@ -76,6 +80,11 @@ async function handleCardClick(event) {
         throw Error("handleCardClick: unable to find <article> element!");
     }
 
+    // remove "click the cards" helper image
+    if (document.getElementById("click-da-cards")) {
+        document.getElementById("click-da-cards").remove();
+    }
+
     if (currentElement.id.startsWith("nav-card-erc20")) {
         currentCard = Number(currentElement.id.substring(15));
         currentType = "erc20";
@@ -86,7 +95,7 @@ async function handleCardClick(event) {
         otherElement = document.getElementById("nav-card-erc20-" + currentCard);
     }
 
-    //console.log("handleCardClick: " + currentType + " #" + currentCard);
+    //console.debug("handleCardClick: " + currentType + " #" + currentCard);
 
     if (currentElement.classList.contains("unselected")) {
         // card is unselected- set to selected
@@ -96,7 +105,7 @@ async function handleCardClick(event) {
         otherElement.classList.add("selected");
 
         // unhide table row
-        document.getElementById("row-" + currentCard).classList.remove("row-displaynone");
+        document.getElementById("row-" + currentCard).classList.remove("hidden");
         document.getElementById("row-" + currentCard).classList.add("row-displayinitial");
 
         //set currentElement and otherElement to have the selected class
@@ -115,7 +124,7 @@ async function handleCardClick(event) {
 
         // hide table row
         document.getElementById("row-" + currentCard).classList.remove("row-displayinitial");
-        document.getElementById("row-" + currentCard).classList.add("row-displaynone");
+        document.getElementById("row-" + currentCard).classList.add("hidden");
 
         // TODO: set how-many-input for row-X to 0, because it's no longer visible
 
@@ -163,7 +172,7 @@ async function handleWrapClick(event) {
     let action = currentElement.id == "wrap-button" ? "wrap" : "unwrap";
 
     const wrapitup = await calculateTotalToWrap();
-    console.log("wrapitup: " + JSON.stringify(wrapitup));
+    console.debug("wrapitup: " + JSON.stringify(wrapitup));
     const wrapperContract = await new ethers.Contract(constants.wrapperAddr, constants.wrapperAbi, signer);
 
     // there's 4 possible functions to execute from here:
@@ -172,52 +181,85 @@ async function handleWrapClick(event) {
 
     // First, test if there's only any cards to wrap.
     if (action == "wrap") {
-        console.log("handling wrap");
+        console.debug("handling wrap");
         // find nonzero values
         const nonzeroWrapValues = Object.keys(wrapitup["wrap"])
             .filter(key => wrapitup["wrap"][key] > 0)
             .reduce((res, key) => (res[key] = wrapitup["wrap"][key], res), {});
-        console.log("nonzeroWrapValues: " + JSON.stringify(nonzeroWrapValues));
+        console.debug("nonzeroWrapValues: " + JSON.stringify(nonzeroWrapValues));
 
         if (Object.keys(nonzeroWrapValues).length == 0) {
-            console.log("No values found to wrap!");
+            console.debug("No values found to wrap!");
         } else if (Object.keys(nonzeroWrapValues).length == 1) {
-            console.log("Wrapping 1 type of card...");
+            console.debug("Wrapping 1 type of card...");
             const cardId = Object.keys(nonzeroWrapValues)[0];
             const wrapNum = nonzeroWrapValues[cardId];
 
-            console.log(wrapperContract.wrap);
-            console.log("cardId: " + cardId);
-            console.log("wrapNum: " + wrapNum);
+            console.debug(wrapperContract.wrap);
+            console.debug("cardId: " + cardId);
+            console.debug("wrapNum: " + wrapNum);
 
             const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + cardId], constants.erc20Abi, signer);
             const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
-            console.log("approvalResult:");
-            console.log(approvalResult);
+            console.debug("approvalResult:");
+            console.debug(approvalResult);
             const receipt = await approvalResult.wait();
-            console.log("receipt:");
-            console.log(receipt);
+            console.debug("receipt:");
+            console.debug(receipt);
 
-            const wrqpResult = await wrapperContract.wrap(cardId, wrapNum);
-            console.log("wrqpResult:");
+            const wrapResult = await wrapperContract.wrap(cardId, wrapNum);
+            console.debug("wrapResult:");
             const receipt2 = await wrapResult.wait();
-            console.log("receipt2:");
-            console.log(receipt2);
+            console.debug("receipt2:");
+            console.debug(receipt2);
 
             // finally, update balances
             populateBalances();
         } else {
-            console.log("Wrapping multiple types of cards...");
+            console.debug("Wrapping multiple types of cards...");
 
+            console.error("not yet implemented"); // TODO
         }
 
     } else {
-        console.log("unwrap not yet implemented");
+        console.debug("handling unwrap");
+
+        // find nonzero values
+        const nonzeroUnwrapValues = Object.keys(wrapitup["unwrap"])
+            .filter(key => wrapitup["unwrap"][key] > 0)
+            .reduce((res, key) => (res[key] = wrapitup["unwrap"][key], res), {});
+        console.debug("nonzeroUnwrapValues: " + JSON.stringify(nonzeroUnwrapValues));
+
+        if (Object.keys(nonzeroUnwrapValues).length == 0) {
+            console.debug("No values found to wrap!");
+        } else if (Object.keys(nonzeroUnwrapValues).length == 1) {
+            console.debug("Unwrapping 1 type of card...");
+            const cardId = Object.keys(nonzeroUnwrapValues)[0];
+            const unwrapNum = nonzeroUnwrapValues[cardId];
+
+            console.debug(wrapperContract.unwrap);
+            console.debug("cardId: " + cardId);
+            console.debug("unwrapNum: " + unwrapNum);
+
+            const unwrapResult = await wrapperContract.unwrap(cardId, unwrapNum);
+            console.debug("unwrapResult:");
+            const receipt2 = await unwrapResult.wait();
+            console.debug("receipt2:");
+            console.debug(receipt2);
+
+            // finally, update balances
+            populateBalances();
+        } else {
+            console.debug("Unwrapping multiple types of cards...");
+
+            console.error("not yet implemented"); // TODO
+        }
+
     }
 }
 
 async function populateBalances() {
-    console.log("populateBalances");
+    console.debug("populateBalances");
     const userAddr = await getUserAddr();
     if (!userAddr) {
         throw Error("populateBalances(): Unable to fetch user address!");
@@ -227,7 +269,7 @@ async function populateBalances() {
     for (let i = 1; i <= numCards; i++) {
         const currentSymbol = "CRO" + i;
         getErc20Balance(constants.curioAddresses[currentSymbol], userAddr).then(balance => {
-            console.log("erc20 " + currentSymbol + " balance: " + balance);
+            console.debug("erc20 " + currentSymbol + " balance: " + balance);
             document.getElementById("nav-card-erc20-" + i + "-balance").innerText = balance;
             document.getElementById("main-card-erc20-" + i + "-balance").innerText = balance;
         });
@@ -235,9 +277,9 @@ async function populateBalances() {
 
     // populate erc1155 balances
     getErc1155BalanceBatch(constants.wrapperAddr, userAddr).then(balances => {
-        console.log("erc1155 balances: " + balances);
+        console.debug("erc1155 balances: " + balances);
         for (let i = 1; i <= numCards; i++) {
-            console.log("erc1155 id " + i + " balance: " + balances[i-1]);
+            console.debug("erc1155 id " + i + " balance: " + balances[i-1]);
             document.getElementById("nav-card-erc1155-" + i + "-balance").innerText = balances[i-1];
             document.getElementById("main-card-erc1155-" + i + "-balance").innerText = balances[i-1];
         }
@@ -267,25 +309,36 @@ async function postConnection(userAddr) {
     wrapButton.classList.add("pointer");
 
     const unwrapButton = document.getElementById("unwrap-button");
-    console.log(unwrapButton);
     unwrapButton.addEventListener("click", handleWrapClick);
     unwrapButton.classList.add("pointer");
 }
 
 async function initialize() {
-    console.log("initialize");
+    console.debug("initialize");
 
     if (debugAddress) {
         console.error("WARNING! WEBSITE IN DEBUG MODE: user address forced to " + debugAddress);
     }
 
+    if (!provider) {
+        console.error("Your browser is not web3 enabled.");
+        document.getElementById("install-metamask").classList.remove("hidden");
+        return;
+    }
+
     getUserAddr().then(userAddr => {
         if (userAddr) {
+            // already connected
+            document.getElementById("connection-indicator").classList.add("circle-green");
+            document.getElementById("connect-wallet").remove();
+            document.getElementById("click-da-cards").classList.remove("hidden");
             postConnection(userAddr);
         } else {
-            // TODO fix the connection wizard
-            document.getElementById("web3").addEventListener("click", connectWallet);
-            document.getElementById("web3").classList.add("pointer");
+            // prompt user to connect
+            document.getElementById("connection-indicator").classList.add("circle-orange");
+            document.getElementById("web3").innerText = "Connect your wallet to continue";
+            document.getElementById("connect-wallet").classList.remove("hidden");
+            document.getElementById("connect-wallet-button").addEventListener("click", connectWallet);
         }
     });
 }

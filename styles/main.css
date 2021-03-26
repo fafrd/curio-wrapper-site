@@ -191,11 +191,19 @@ nav img {
 /* HEADER GLOBAL */
 
 .circle {
-    background-color: #33ED2F;
+    background-color: var(--red);
     height: 12px;
     width: 12px;
     border-radius: 100%;
     margin-right: 10px;
+}
+
+.circle-orange {
+    background-color: orange;
+}
+
+.circle-green {
+    background-color: #33ED2F;
 }
 
 header {
@@ -212,6 +220,10 @@ header {
 
 /* MAIN */
 
+.hidden {
+    display: none !important;
+}
+
 main {
     position: fixed;
     overflow-y: scroll;
@@ -227,10 +239,6 @@ main .row__gridfucker {
     width: 100%;
     display: grid;
     grid-template-columns: 25% 25% 25% 25%;
-}
-
-.row-displaynone {
-    display: none;
 }
 
 .row-displayinitial {
@@ -252,3 +260,55 @@ main .mainbox {
     width: 100%;
     border: var(--border);
 }
+
+#connect-wallet,#click-da-cards,#install-metamask {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 9999;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#click-da-cards img {
+    margin-bottom: 32px;
+}
+
+button {
+    display: block;
+    margin-top: 32px;
+    margin-bottom: 4px;
+    margin-right: 4px;
+    outline: none;
+    border: var(--border);
+    font-family: 'Roboto Mono';
+    font-size: 1.2em;
+    color: var(--red);
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    box-shadow: 4px 4px 0px var(--red);
+    transition: 0.1s ease-in-out;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+button:active {
+    box-shadow: 0px 0px 0px var(--red);
+    background: var(--red);
+    color: var(--white);
+    transition: 0.1s ease-in-out;
+    margin-top: 32px;
+    margin-bottom: 0px;
+    margin-right: 0px;
+}
+
+

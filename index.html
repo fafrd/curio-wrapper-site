@@ -11,6 +11,21 @@
     <title>Document</title>
 </head>
 <body>
+<div id="connect-wallet" class="hidden">
+    <p>Please connect your wallet to continue.</p>
+    <button id="connect-wallet-button" class="cell cell__pink">Connect</button>
+</div>
+
+<div id="click-da-cards" class="hidden">
+    <img src="images/select.svg" alt="Click the cards on the side of the page to continue">
+    <p>Select cards you want to wrap</p>
+</div>
+
+<div id="install-metamask" class="hidden">
+    <p>Please install Metamask to continue.</p>
+    <button id="install-metamask-button" onclick="location.href='https://metamask.io/'" class="cell cell__pink">Get Metamask</button>
+</div>
+
 <!-- PAIR -->
     <nav>
         <article id="nav-card-erc20-1" class="nav-card unselected">
@@ -63,17 +78,16 @@
             </div>
         </article>
 
-
     </nav>
 
 <!-- CENTER SHIT -->
     <main>
         <header class="header__connect cell cell__white">
-            <span class="circle"></span> <p id="web3">Connect your wallet to continue</p>
+            <span id="connection-indicator" class="circle"></span> <p id="web3">Metamask not detected</p>
         </header>
 
         <section id="rows">
-            <article id="row-1" class="row row-displaynone">
+            <article id="row-1" class="row hidden">
                 <header class="row__header cell cell__red">CRO1</header>
                 <div class="row__gridfucker">
                     <p class="balance-label cell">Unwrapped Balance</p>
@@ -87,7 +101,7 @@
                 </div>
             </article>
 
-            <article id="row-2" class="row row-displaynone">
+            <article id="row-2" class="row hidden">
                 <header class="row__header cell cell__red">CRO2</header>
                 <div class="row__gridfucker">
                     <p class="balance-label cell">Unwrapped Balance</p>
@@ -100,10 +114,9 @@
                     <input for="unwrap" id="to-unwrap-2" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
                 </div>
             </article>
-
         </section>
 
-        <div class="main__line">
+        <div class="main__line hidden">
             <div class="mainbox"></div>
             <div class="mainbox"></div>
         </div>
