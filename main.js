@@ -73,12 +73,17 @@ async function getErc1155BalanceBatch(contractAddr, userAddr) {
 }
 
 async function handleCardClick(event) {
-    let currentCard, currentType;
     let currentElement, otherElement; // otherElement is erc1155 if current is erc20, etc
     currentElement = event.path.find(e => e.localName == "article");
     if (!currentElement) {
         throw Error("handleCardClick: unable to find <article> element!");
     }
+
+    return await _handleCardClick(currentElement, otherElement);
+}
+
+async function _handleCardClick(currentElement, otherElement) {
+    let currentCard, currentType;
 
     if (document.getElementById("click-da-cards")) {
         // remove "click the cards" helper image
@@ -96,8 +101,6 @@ async function handleCardClick(event) {
         currentType = "erc1155";
         otherElement = document.getElementById("nav-card-erc20-" + currentCard);
     }
-
-    //console.debug("handleCardClick: " + currentType + " #" + currentCard);
 
     if (currentElement.classList.contains("unselected")) {
         // card is unselected- set to selected
@@ -128,7 +131,9 @@ async function handleCardClick(event) {
         document.getElementById("row-" + currentCard).classList.remove("row-displayinitial");
         document.getElementById("row-" + currentCard).classList.add("hidden");
 
-        // TODO: set how-many-input for row-X to 0, because it's no longer visible
+        // set to-wrap-# for this row back to 0
+        document.getElementById("to-wrap-" + currentCard).value = "";
+        document.getElementById("to-unwrap-" + currentCard).value = "";
 
         Array.from(currentElement.children).find(e => e.localName == "img").classList.remove("nav-card__grayscale");
         Array.from(otherElement.children).find(e => e.localName == "img").classList.remove("nav-card__grayscale");
@@ -138,6 +143,43 @@ async function handleCardClick(event) {
 
     } else {
         throw Error("handleCardClick: card in neither Selected nor Unselected state!");
+    }
+}
+
+function handleSelectAll(event) {
+    let currentElement = event.path.find(e => e.id.startsWith("select-all") || e.id.startsWith("deselect-all"));
+    if (!currentElement) {
+        throw Error("handleSelectAll: unable to find select button?!");
+    }
+
+    for (let i = 1; i <= numCards; i++) {
+        switch (currentElement.id) {
+            case "select-all-unwrapped":
+                // hack- force all to deselected state so handleCardClick works right
+                document.getElementById("nav-card-erc20-" + i).classList.remove("selected");
+                document.getElementById("nav-card-erc20-" + i).classList.add("unselected");
+                _handleCardClick(document.getElementById("nav-card-erc20-" + i), document.getElementById("nav-card-erc1155-" + i));
+ 
+                break;
+            case "deselect-all-unwrapped":
+                // hack- force all to selected state so handleCardClick works right
+                document.getElementById("nav-card-erc20-" + i).classList.remove("unselected");
+                document.getElementById("nav-card-erc20-" + i).classList.add("selected");
+                _handleCardClick(document.getElementById("nav-card-erc20-" + i), document.getElementById("nav-card-erc1155-" + i));
+                break;
+            case "select-all-wrapped":
+                // hack- force all to deselected state so handleCardClick works right
+                document.getElementById("nav-card-erc1155-" + i).classList.remove("selected");
+                document.getElementById("nav-card-erc1155-" + i).classList.add("unselected");
+                _handleCardClick(document.getElementById("nav-card-erc1155-" + i), document.getElementById("nav-card-erc20-" + i));
+                break;
+            case "deselect-all-wrapped":
+                // hack- force all to selected state so handleCardClick works right
+                document.getElementById("nav-card-erc1155-" + i).classList.remove("unselected");
+                document.getElementById("nav-card-erc1155-" + i).classList.add("selected");
+                _handleCardClick(document.getElementById("nav-card-erc1155-" + i), document.getElementById("nav-card-erc20-" + i));
+                break;
+        }
     }
 }
 
@@ -358,6 +400,8 @@ async function populateBalances() {
             console.debug("erc20 " + currentSymbol + " balance: " + balance);
             document.getElementById("nav-card-erc20-" + i + "-balance").innerText = balance;
             document.getElementById("main-card-erc20-" + i + "-balance").innerText = balance;
+            // set max value for input field
+            document.getElementById("to-wrap-" + i).max = balance;
         });
     }
 
@@ -368,6 +412,8 @@ async function populateBalances() {
             console.debug("erc1155 id " + i + " balance: " + balances[i-1]);
             document.getElementById("nav-card-erc1155-" + i + "-balance").innerText = balances[i-1];
             document.getElementById("main-card-erc1155-" + i + "-balance").innerText = balances[i-1];
+            // set max value for input field
+            document.getElementById("to-unwrap-" + i).max = balances[i-1];
         }
     });
 }
@@ -388,6 +434,12 @@ async function postConnection(userAddr) {
         erc1155Element.addEventListener("click", handleCardClick);
         erc1155Element.classList.add("pointer");
     }
+
+    // bind event listeners to select/unselect all buttons
+    document.getElementById("select-all-wrapped").addEventListener("click", handleSelectAll);
+    document.getElementById("deselect-all-wrapped").addEventListener("click", handleSelectAll);
+    document.getElementById("select-all-unwrapped").addEventListener("click", handleSelectAll);
+    document.getElementById("deselect-all-unwrapped").addEventListener("click", handleSelectAll);
 
     // bind event listeners to Wrap and Unwrap buttons
     const wrapButton = document.getElementById("wrap-button");

@@ -95,9 +95,9 @@
                     <p class="balance-label cell">Wrapped Balance</p>
                     <p class="balance-value cell" id="main-card-erc1155-1-balance">0</p>
                     <label for="wrap" class="balance-label cell">How many to wrap?</label>
-                    <input for="wrap" id="to-wrap-1" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
+                    <input for="wrap" id="to-wrap-1" class="how-many-input cell cell__pink" type="number" placeholder="0" min="0" max="2000"></input>
                     <label for="unwrap" class="balance-label cell">How many to unwrap?</label>
-                    <input for="unwrap" id="to-unwrap-1" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
+                    <input for="unwrap" id="to-unwrap-1" class="how-many-input cell cell__pink" type="number" placeholder="0" min="0" max="2000"></input>
                 </div>
             </article>
 
@@ -109,9 +109,9 @@
                     <p class="balance-label cell">Wrapped Balance</p>
                     <p class="balance-value cell" id="main-card-erc1155-2-balance">0</p>
                     <label for="wrap" class="balance-label cell">How many to wrap?</label>
-                    <input for="wrap" id="to-wrap-2" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
+                    <input for="wrap" id="to-wrap-2" class="how-many-input cell cell__pink" type="number" placeholder="0" min="0" max="2000"></input>
                     <label for="unwrap" class="balance-label cell">How many to unwrap?</label>
-                    <input for="unwrap" id="to-unwrap-2" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
+                    <input for="unwrap" id="to-unwrap-2" class="how-many-input cell cell__pink" type="number" placeholder="0" min="0" max="2000"></input>
                 </div>
             </article>
         </section>
@@ -127,8 +127,8 @@
         <div class="footerfucker">
             <div class="footer-selector">
                 <p class="cell title cell__red">Unwrapped Curio Cards</p>
-                <p class="cell select-button cell__pink">Select All</p>
-                <p class="cell select-button cell__pink">Deselect All</p>
+                <p id="select-all-unwrapped" class="cell select-button cell__pink">Select All</p>
+                <p id="deselect-all-unwrapped" class="cell select-button cell__pink">Deselect All</p>
             </div>
             <div class="footer-center">
                 <div class="footer-center-bottom">
@@ -140,8 +140,8 @@
             </div>
             <div class="footer-selector">
                 <p class="cell title cell__red">Unwrapped Curio Cards</p>
-                <p class="cell select-button cell__pink">Select All</p>
-                <p class="cell select-button cell__pink">Deselect All</p>
+                <p id="select-all-wrapped" class="cell select-button cell__pink">Select All</p>
+                <p id="deselect-all-wrapped" class="cell select-button cell__pink">Deselect All</p>
             </div>
         </div>
         <div class="footerdeco">
