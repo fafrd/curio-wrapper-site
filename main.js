@@ -3,13 +3,18 @@ import 'regenerator-runtime/runtime'
 //import * as constants from "./constants.js"
 import * as constants from "./rinkeby-constants.js"
 
+import images_jpg from "./images/*.jpg"
+import images_png from "./images/*.png"
+import images_gif from "./images/*.gif"
+let images = Object.assign({}, images_jpg, images_png, images_gif);
+
 // Override the owner address. Used instead of metamask address if set
 var debugAddress;
 //debugAddress = "0x3be11d51f5b1353b305eaf926376ed437634c3dc";
 //debugAddress = "0x85a9d6258b6a2cc264fdbfb60c5e3d2678b4ef7e";
 //debugAddress = "0x49468f702436d1e590895ffa7155bcd393ce52ae";
 
-const numCards = 2; // debug
+const numCards = 30; // for debugging
 
 const { ethereum } = window;
 if (ethereum) {
@@ -187,7 +192,6 @@ function handleSelectAll(event) {
 }
 
 function updateWrapTotal() {
-    console.log("updateWrapTotal");
     let totalToWrap = 0, totalToUnwrap = 0;
     for (let i = 1; i <= numCards; i++) {
         const wrapAmt = document.getElementById("to-wrap-" + i).value;
@@ -443,6 +447,51 @@ async function populateBalances() {
 async function postConnection(userAddr) {
     // populate address in top bar
     document.getElementById("web3").innerText = "Connected as " + userAddr.substring(0, 5) + "…" + userAddr.substring(userAddr.length-3);
+
+    // populate cards dynamically
+    for (let i = 1; i <= numCards; i++) {
+        document.getElementById("nav").innerHTML += `
+        <article id="nav-card-erc20-${i}" class="nav-card unselected">
+            <div class="nav-card__overlay"></div>
+            <img class="nav-card__image" src="${images[i]}" alt="Curio${i}">
+            <div class="label__wrapper">
+                <p class="cell cell__white">CRO${i}</p>
+                <div class="balance__container">
+                    <p class="cell cell__white">Balance</p><p id="nav-card-erc20-${i}-balance" class="cell cell__red">0</p>
+                </div>
+            </div>
+        </article>
+
+        <div class="spacer"></div>
+
+        <article id="nav-card-erc1155-${i}" class="nav-card unselected">
+            <div class="nav-card__overlay"></div>
+            <img class="nav-card__image" src="${images[i]}" alt="Curio${i}">
+            <div class="label__wrapper">
+                <p class="cell cell__red">WRAPPED</p>
+                <p class="cell cell__white">CRO${i}</p>
+                <div class="balance__container">
+                    <p class="cell cell__white">Balance</p><p id="nav-card-erc1155-${i}-balance" class="cell cell__red">0</p>
+                </div>
+            </div>
+        </article>
+`;
+        document.getElementById("rows").innerHTML += `
+            <article id="row-${i}" class="row hidden">
+                <header class="row__header cell cell__red">CRO${i}</header>
+                <div class="row__gridfucker">
+                    <p class="balance-label cell">Unwrapped Balance</p>
+                    <p class="balance-value cell" id="main-card-erc20-${i}-balance">0</p>
+                    <p class="balance-label cell">Wrapped Balance</p>
+                    <p class="balance-value cell" id="main-card-erc1155-${i}-balance">0</p>
+                    <label for="wrap" class="balance-label cell">How many to wrap?</label>
+                    <input for="wrap" id="to-wrap-${i}" class="how-many-input cell cell__pink" type="number" placeholder="0" min="0" max="2000"></input>
+                    <label for="unwrap" class="balance-label cell">How many to unwrap?</label>
+                    <input for="unwrap" id="to-unwrap-${i}" class="how-many-input cell cell__pink" type="number" placeholder="0" min="0" max="2000"></input>
+                </div>
+            </article>
+`;
+    }
 
     await populateBalances();
 
