@@ -14,6 +14,7 @@ const numCards = 2; // debug
 const { ethereum } = window;
 if (ethereum) {
     var provider = new ethers.providers.Web3Provider(ethereum);
+    var signer = provider.getSigner();
 }
 
 function isEthereumAvailable() {
@@ -37,6 +38,18 @@ async function connectWallet() {
     postConnection(debugAddress || accts[0]);
 }
 
+async function getUserAddr() {
+    return await provider.listAccounts().then(accts => {
+        if (accts.length > 0) {
+            console.log("connected! " + (debugAddress || JSON.stringify(accts)));
+            return (debugAddress || accts[0]);
+        } else {
+            console.log("not yet connected!");
+            return;
+        }
+    });
+}
+
 async function getErc20Balance(tokenAddr, userAddr) {
     //console.log("fetching balance for tokenAddr: " + tokenAddr);
     //await new Promise(resolve => setTimeout(resolve, Math.random() * 500));
@@ -48,7 +61,6 @@ async function getErc20Balance(tokenAddr, userAddr) {
 async function getErc1155BalanceBatch(contractAddr, userAddr) {
     const contract = await new ethers.Contract(contractAddr, constants.wrapperAbi, provider);
     console.log("querying batch... ");
-    console.log(contract["balanceOfBatch(address[],uint256[])"]);
     const userAddrArray = Array(30).fill(userAddr);
     let idArray = Array.from(Array(31).keys());
     idArray.shift();
@@ -74,7 +86,7 @@ async function handleCardClick(event) {
         otherElement = document.getElementById("nav-card-erc20-" + currentCard);
     }
 
-    console.log("handleCardClick: " + currentType + " #" + currentCard);
+    //console.log("handleCardClick: " + currentType + " #" + currentCard);
 
     if (currentElement.classList.contains("unselected")) {
         // card is unselected- set to selected
@@ -87,14 +99,12 @@ async function handleCardClick(event) {
         document.getElementById("row-" + currentCard).classList.remove("row-displaynone");
         document.getElementById("row-" + currentCard).classList.add("row-displayinitial");
 
-        // TODO: apply overlay indicating the card is 'selected'
         //set currentElement and otherElement to have the selected class
+        Array.from(currentElement.children).find(e => e.localName == "img").classList.add("nav-card__grayscale");
+        Array.from(otherElement.children).find(e => e.localName == "img").classList.add("nav-card__grayscale");
 
-        //[11:32 PM] designer: When card is selected:
-        //Add .nav-card__selected class to the <article id="nav-card-erc1155-1" class="nav-card nav-card__selected">
-        //Add .nav-card__grayscale class to the  <img class="nav-card__image" src="images/01.jpg" alt="Curio1">
-        //Set .nav-card__overlay to display: block
-        //[11:32 PM] designer: Remember to undo these things once the card is no longer selected.
+        Array.from(currentElement.children).find(e => e.classList.contains("nav-card__overlay")).classList.add("nav-card__overlay-selected");
+        Array.from(otherElement.children).find(e => e.classList.contains("nav-card__overlay")).classList.add("nav-card__overlay-selected");
 
     } else if (currentElement.classList.contains("selected")) {
         // card is selected- set to unselected
@@ -109,8 +119,11 @@ async function handleCardClick(event) {
 
         // TODO: set how-many-input for row-X to 0, because it's no longer visible
 
-        // TODO: apply overlay indicating the card is no longer 'selected'
-        //set currentElement and otherElement to remove the selected class
+        Array.from(currentElement.children).find(e => e.localName == "img").classList.remove("nav-card__grayscale");
+        Array.from(otherElement.children).find(e => e.localName == "img").classList.remove("nav-card__grayscale");
+
+        Array.from(currentElement.children).find(e => e.classList.contains("nav-card__overlay")).classList.remove("nav-card__overlay-selected");
+        Array.from(otherElement.children).find(e => e.classList.contains("nav-card__overlay")).classList.remove("nav-card__overlay-selected");
 
     } else {
         throw Error("handleCardClick: card in neither Selected nor Unselected state!");
@@ -118,24 +131,27 @@ async function handleCardClick(event) {
 }
 
 async function calculateTotalToWrap() {
-    // return a map like
-    /*
-    {
-        "toWrap": {
-            1: 0,
-            2: 4,
-            ...
-            30: 10
+    // these will be used to calculate total for display, and to pass args to wrapBatch and unwrapBatch.
+
+    let wrapitup = {
+        "wrap": {
+            1: null,
+            2: null
         },
-        "toUnwrap": {
-            1: 0,
-            2: 4,
-            ...
-            30: 10
+        "unwrap": {
+            1: null,
+            2: null
         }
+    };
+
+    for (let i = 1; i <= numCards; i++) {
+        const wrapAmt = document.getElementById("to-wrap-" + i).value;
+        wrapitup["wrap"][i] = Number(wrapAmt) || 0;
+        const unwrapAmt = document.getElementById("to-unwrap-" + i).value;
+        wrapitup["unwrap"][i] = Number(unwrapAmt) || 0;
     }
-    */
-    // these will be used to calculate total for display, and to pass args to wrapBatch and unwrapBatch
+    
+    return wrapitup;
 }
 
 async function handleWrapClick(event) {
@@ -145,21 +161,67 @@ async function handleWrapClick(event) {
     }
 
     let action = currentElement.id == "wrap-button" ? "wrap" : "unwrap";
-    console.log("action: " + action);
 
-    const toWrap = calculateTotalToWrap();
+    const wrapitup = await calculateTotalToWrap();
+    console.log("wrapitup: " + JSON.stringify(wrapitup));
+    const wrapperContract = await new ethers.Contract(constants.wrapperAddr, constants.wrapperAbi, signer);
 
     // there's 4 possible functions to execute from here:
     // wrap or unwrap, if only 1 type of card to change
     // wrapBatch or unwrapBatch, if multiple types of card to change
 
-    // TODO
+    // First, test if there's only any cards to wrap.
+    if (action == "wrap") {
+        console.log("handling wrap");
+        // find nonzero values
+        const nonzeroWrapValues = Object.keys(wrapitup["wrap"])
+            .filter(key => wrapitup["wrap"][key] > 0)
+            .reduce((res, key) => (res[key] = wrapitup["wrap"][key], res), {});
+        console.log("nonzeroWrapValues: " + JSON.stringify(nonzeroWrapValues));
+
+        if (Object.keys(nonzeroWrapValues).length == 0) {
+            console.log("No values found to wrap!");
+        } else if (Object.keys(nonzeroWrapValues).length == 1) {
+            console.log("Wrapping 1 type of card...");
+            const cardId = Object.keys(nonzeroWrapValues)[0];
+            const wrapNum = nonzeroWrapValues[cardId];
+
+            console.log(wrapperContract.wrap);
+            console.log("cardId: " + cardId);
+            console.log("wrapNum: " + wrapNum);
+
+            const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + cardId], constants.erc20Abi, signer);
+            const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
+            console.log("approvalResult:");
+            console.log(approvalResult);
+            const receipt = await approvalResult.wait();
+            console.log("receipt:");
+            console.log(receipt);
+
+            const wrqpResult = await wrapperContract.wrap(cardId, wrapNum);
+            console.log("wrqpResult:");
+            const receipt2 = await wrapResult.wait();
+            console.log("receipt2:");
+            console.log(receipt2);
+
+            // finally, update balances
+            populateBalances();
+        } else {
+            console.log("Wrapping multiple types of cards...");
+
+        }
+
+    } else {
+        console.log("unwrap not yet implemented");
+    }
 }
 
-// work to perform after connection is established
-async function postConnection(userAddr) {
-    // populate address in top right
-    document.getElementById("web3").innerText = "Connected as " + userAddr.substring(0, 5) + "…" + userAddr.substring(userAddr.length-3);
+async function populateBalances() {
+    console.log("populateBalances");
+    const userAddr = await getUserAddr();
+    if (!userAddr) {
+        throw Error("populateBalances(): Unable to fetch user address!");
+    }
 
     // populate erc20 balances
     for (let i = 1; i <= numCards; i++) {
@@ -180,6 +242,14 @@ async function postConnection(userAddr) {
             document.getElementById("main-card-erc1155-" + i + "-balance").innerText = balances[i-1];
         }
     });
+}
+
+// work to perform after connection is established
+async function postConnection(userAddr) {
+    // populate address in top bar
+    document.getElementById("web3").innerText = "Connected as " + userAddr.substring(0, 5) + "…" + userAddr.substring(userAddr.length-3);
+
+    await populateBalances();
 
     // bind event listeners to nav cards
     for (let i = 1; i <= numCards; i++) {
@@ -200,29 +270,24 @@ async function postConnection(userAddr) {
     console.log(unwrapButton);
     unwrapButton.addEventListener("click", handleWrapClick);
     unwrapButton.classList.add("pointer");
-
 }
 
 async function initialize() {
     console.log("initialize");
-    //console.log(JSON.stringify(constants.wrapperAbi));
 
     if (debugAddress) {
         console.error("WARNING! WEBSITE IN DEBUG MODE: user address forced to " + debugAddress);
     }
 
-    // detect if metamask is already connected; set button in top right
-    provider.listAccounts().then(accts => {
-        if (accts.length > 0) {
-            console.log("connected! " + debugAddress || JSON.stringify(accts));
-            postConnection(debugAddress || accts[0]);
+    getUserAddr().then(userAddr => {
+        if (userAddr) {
+            postConnection(userAddr);
         } else {
-            console.log("not yet connected!");
+            // TODO fix the connection wizard
             document.getElementById("web3").addEventListener("click", connectWallet);
             document.getElementById("web3").classList.add("pointer");
         }
     });
-
 }
 
 window.addEventListener('DOMContentLoaded', initialize);

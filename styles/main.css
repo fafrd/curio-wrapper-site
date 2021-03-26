@@ -126,7 +126,7 @@ nav .nav-card:hover {
     transform: scale(0.95);
 }
 
-nav .nav-card__selected {
+.nav-card.selected {
     transform: scale(0.95);
 }
 
@@ -138,6 +138,10 @@ nav .nav-card__overlay{
     mix-blend-mode: screen;
     display: none;
     z-index: 3;
+}
+
+nav .nav-card__overlay-selected {
+    display: initial;
 }
 
 nav .nav-card__grayscale {

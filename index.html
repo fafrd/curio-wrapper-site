@@ -52,6 +52,7 @@
         <div class="spacer"></div>
 
         <article id="nav-card-erc1155-2" class="nav-card unselected">
+            <div class="nav-card__overlay"></div>
             <img src="images/02.jpg" alt="Curio2">
             <div class="label__wrapper">
                 <p class="cell cell__red">WRAPPED</p>
@@ -80,9 +81,9 @@
                     <p class="balance-label cell">Wrapped Balance</p>
                     <p class="balance-value cell" id="main-card-erc1155-1-balance">0</p>
                     <label for="wrap" class="balance-label cell">How many to wrap?</label>
-                    <input for="wrap" class="how-many-input cell cell__pink" placeholder="0"></input>
+                    <input for="wrap" id="to-wrap-1" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
                     <label for="unwrap" class="balance-label cell">How many to unwrap?</label>
-                    <input for="unwrap" class="how-many-input cell cell__pink" placeholder="0"></input>
+                    <input for="unwrap" id="to-unwrap-1" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
                 </div>
             </article>
 
@@ -94,14 +95,14 @@
                     <p class="balance-label cell">Wrapped Balance</p>
                     <p class="balance-value cell" id="main-card-erc1155-2-balance">0</p>
                     <label for="wrap" class="balance-label cell">How many to wrap?</label>
-                    <input for="wrap" class="how-many-input cell cell__pink" placeholder="0"></input>
+                    <input for="wrap" id="to-wrap-2" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
                     <label for="unwrap" class="balance-label cell">How many to unwrap?</label>
-                    <input for="unwrap" class="how-many-input cell cell__pink" placeholder="0"></input>
+                    <input for="unwrap" id="to-unwrap-2" class="how-many-input cell cell__pink" type="number" placeholder="0"></input>
                 </div>
             </article>
 
         </section>
-                
+
         <div class="main__line">
             <div class="mainbox"></div>
             <div class="mainbox"></div>
@@ -119,8 +120,8 @@
             <div class="footer-center">
                 <div class="footer-center-bottom">
                     <p class="cell cell__white">Wrap TODO Curio Cards</p>
-                    <p class="cell wrap-button cell__pink">-----&gt;</p>
-                    <p class="cell wrap-button cell__pink">&lt;-----</p>
+                    <p id="wrap-button" class="cell wrap-button cell__pink">-----&gt;</p>
+                    <p id="unwrap-button" class="cell wrap-button cell__pink">&lt;-----</p>
                     <p class="cell cell__white">Unwrap TODO Curio Cards</p>
                 </div>
             </div>
