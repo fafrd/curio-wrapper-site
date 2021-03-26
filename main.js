@@ -232,7 +232,7 @@ async function handleWrapClick(event) {
             // 2. submit bulk txn
 
             let approvalsRequired = [];
-            for (let i = i; i < Object.keys(nonzeroWrapValues).length; i++) {
+            for (let i = 0; i < Object.keys(nonzeroWrapValues).length; i++) {
                 const cardId = Object.keys(nonzeroWrapValues)[i];
                 console.debug("cardId: " + cardId);
 
@@ -326,6 +326,22 @@ async function handleWrapClick(event) {
         }
 
     }
+}
+
+// This exists for debug purposes
+async function revokeApproval() {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const i = 2; // which curio card to revoke?
+
+    console.debug("Revoking approval for card " + i);
+    const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + i], constants.erc20Abi, signer);
+    const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 0);
+    console.debug("approvalResult:");
+    console.debug(approvalResult);
+    const receipt = await approvalResult.wait();
+    console.debug("receipt:");
+    console.debug(receipt);
 }
 
 async function populateBalances() {
