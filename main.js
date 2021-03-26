@@ -144,6 +144,9 @@ async function _handleCardClick(currentElement, otherElement) {
     } else {
         throw Error("handleCardClick: card in neither Selected nor Unselected state!");
     }
+
+    // finally, update the total to wrap #
+    updateWrapTotal();
 }
 
 function handleSelectAll(event) {
@@ -182,6 +185,24 @@ function handleSelectAll(event) {
         }
     }
 }
+
+function updateWrapTotal() {
+    console.log("updateWrapTotal");
+    let totalToWrap = 0, totalToUnwrap = 0;
+    for (let i = 1; i <= numCards; i++) {
+        const wrapAmt = document.getElementById("to-wrap-" + i).value;
+        if (Number(wrapAmt)) {
+            totalToWrap += Number(wrapAmt);
+        }
+        const unwrapAmt = document.getElementById("to-unwrap-" + i).value;
+        if (Number(unwrapAmt)) {
+            totalToUnwrap += Number(unwrapAmt);
+        }
+    }
+
+    document.getElementById("total-wrap").innerText = "Wrap " + totalToWrap + " Curio Cards";
+    document.getElementById("total-unwrap").innerText = "Wrap " + totalToUnwrap + " Curio Cards";
+ }
 
 async function calculateTotalToWrap() {
     // these will be used to calculate total for display, and to pass args to wrapBatch and unwrapBatch.
@@ -449,6 +470,12 @@ async function postConnection(userAddr) {
     const unwrapButton = document.getElementById("unwrap-button");
     unwrapButton.addEventListener("click", handleWrapClick);
     unwrapButton.classList.add("pointer");
+
+    // bind event listeners to <input> fields
+    for (let i = 1; i <= numCards; i++) {
+        document.getElementById("to-wrap-" + i).addEventListener("input", updateWrapTotal);
+        document.getElementById("to-unwrap-" + i).addEventListener("input", updateWrapTotal);
+    }
 }
 
 async function initialize() {
