@@ -499,8 +499,8 @@ async function populateBalances() {
 
     // TODO reset <input> fields back to 0
     for (let i = 1; i <= numCards; i++) {
-        document.getElementById("to-wrap-" + i).value = 0;
-        document.getElementById("to-unwrap-" + i).value = 0;
+        document.getElementById("to-wrap-" + i).value = "";
+        document.getElementById("to-unwrap-" + i).value = "";
     }
 }
 
