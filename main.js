@@ -8,12 +8,6 @@ import images_png from "./images/*.png"
 import images_gif from "./images/*.gif"
 let images = Object.assign({}, images_jpg, images_png, images_gif);
 
-// Override the owner address. Used instead of metamask address if set
-var debugAddress;
-//debugAddress = "0x3be11d51f5b1353b305eaf926376ed437634c3dc";
-//debugAddress = "0x85a9d6258b6a2cc264fdbfb60c5e3d2678b4ef7e";
-//debugAddress = "0x49468f702436d1e590895ffa7155bcd393ce52ae";
-
 const numCards = 30; // for debugging
 
 const { ethereum } = window;
@@ -24,6 +18,31 @@ if (ethereum) {
 
 function isEthereumAvailable() {
     Boolean(ethereum);
+}
+
+function updateStatusBar(color, blink, contents) {
+    // remove existing state
+    document.getElementById("connection-indicator").classList.remove("circle-blink");
+    document.getElementById("connection-indicator").classList.remove("circle-red");
+    document.getElementById("connection-indicator").classList.remove("circle-orange");
+    document.getElementById("connection-indicator").classList.remove("circle-green");
+
+    // set blink
+    if (blink) {
+        document.getElementById("connection-indicator").classList.add("circle-blink");
+    }
+
+    // add color
+    document.getElementById("connection-indicator").classList.add("circle-" + color);
+
+    // set contents
+    document.getElementById("web3").innerText = contents;
+}
+
+async function resetStatusBarToGreen() {
+    getUserAddr().then(userAddr => {
+        updateStatusBar("green", false, "Connected as " + userAddr.substring(0, 5) + "…" + userAddr.substring(userAddr.length-3));
+    });
 }
 
 async function connectWallet() {
@@ -38,11 +57,8 @@ async function connectWallet() {
         throw Error("Connected to ethereum but provider.listAccounts() returned empty!");
     }
 
-    // make connection circle happy
-    document.getElementById("connection-indicator").classList.remove("circle-orange");
-    document.getElementById("connection-indicator").classList.add("circle-green");
     // once connected, perform the next tasks, like populating token balances
-    postConnection(debugAddress || accts[0]);
+    postConnection();
     // show "click the cards" helper image
     document.getElementById("click-da-cards").classList.remove("hidden");
 }
@@ -50,8 +66,8 @@ async function connectWallet() {
 async function getUserAddr() {
     return await provider.listAccounts().then(accts => {
         if (accts.length > 0) {
-            console.debug("connected! " + (debugAddress || JSON.stringify(accts)));
-            return (debugAddress || accts[0]);
+            console.debug("connected! " + JSON.stringify(accts));
+            return accts[0];
         } else {
             console.debug("not yet connected!");
             return;
@@ -205,7 +221,7 @@ function updateWrapTotal() {
     }
 
     document.getElementById("total-wrap").innerText = "Wrap " + totalToWrap + " Curio Cards";
-    document.getElementById("total-unwrap").innerText = "Wrap " + totalToUnwrap + " Curio Cards";
+    document.getElementById("total-unwrap").innerText = "Unwrap " + totalToUnwrap + " Curio Cards";
  }
 
 async function calculateTotalToWrap() {
@@ -249,149 +265,188 @@ async function handleWrapClick(event) {
     // wrap or unwrap, if only 1 type of card to change
     // wrapBatch or unwrapBatch, if multiple types of card to change
 
-    // First, test if there's only any cards to wrap.
-    if (action == "wrap") {
-        console.debug("handling wrap");
-        // find nonzero values
-        const nonzeroWrapValues = Object.keys(wrapitup["wrap"])
-            .filter(key => wrapitup["wrap"][key] > 0)
-            .reduce((res, key) => (res[key] = wrapitup["wrap"][key], res), {});
-        console.debug("nonzeroWrapValues: " + JSON.stringify(nonzeroWrapValues));
+    try {
+        // First, test if there's only any cards to wrap.
+        if (action == "wrap") {
+            console.debug("handling wrap");
+            // find nonzero values
+            const nonzeroWrapValues = Object.keys(wrapitup["wrap"])
+                .filter(key => wrapitup["wrap"][key] > 0)
+                .reduce((res, key) => (res[key] = wrapitup["wrap"][key], res), {});
+            console.debug("nonzeroWrapValues: " + JSON.stringify(nonzeroWrapValues));
 
-        if (Object.keys(nonzeroWrapValues).length == 0) {
-            console.debug("No values found to wrap!");
-        } else if (Object.keys(nonzeroWrapValues).length == 1) {
-            console.debug("Wrapping 1 type of card...");
-            const cardId = Object.keys(nonzeroWrapValues)[0];
-            const wrapNum = nonzeroWrapValues[cardId];
+            if (Object.keys(nonzeroWrapValues).length == 0) {
+                console.debug("No values found to wrap!");
+            } else if (Object.keys(nonzeroWrapValues).length == 1) {
+                console.debug("Wrapping 1 type of card...");
+                const cardId = Object.keys(nonzeroWrapValues)[0];
+                const wrapNum = nonzeroWrapValues[cardId];
 
-            console.debug("cardId: " + cardId);
-            console.debug("wrapNum: " + wrapNum);
-
-            const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + cardId], constants.erc20Abi, signer);
-            // if we have approval already, skip
-            const allowanceToSpend = await erc20Contract.allowance(userAddr, constants.wrapperAddr);
-            console.debug("current allowance: " + allowanceToSpend);
-            if (allowanceToSpend == 0) {
-                // seek approval
-                const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
-                console.debug("approvalResult:");
-                console.debug(approvalResult);
-                const receipt = await approvalResult.wait();
-                console.debug("receipt:");
-                console.debug(receipt);
-            }
-
-            // perform wrap
-            const wrapResult = await wrapperContract.wrap(cardId, wrapNum);
-            console.debug("wrapResult:");
-            const receipt2 = await wrapResult.wait();
-            console.debug("receipt2:");
-            console.debug(receipt2);
-
-            // finally, update balances
-            populateBalances();
-        } else {
-            console.debug("Wrapping multiple types of cards...");
-
-            // what do i gotta do here.
-            // 1. get approvals for all erc20s that don't yet have approval
-            // 2. submit bulk txn
-
-            let approvalsRequired = [];
-            for (let i = 0; i < Object.keys(nonzeroWrapValues).length; i++) {
-                const cardId = Object.keys(nonzeroWrapValues)[i];
                 console.debug("cardId: " + cardId);
+                console.debug("wrapNum: " + wrapNum);
 
                 const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + cardId], constants.erc20Abi, signer);
                 // if we have approval already, skip
                 const allowanceToSpend = await erc20Contract.allowance(userAddr, constants.wrapperAddr);
                 console.debug("current allowance: " + allowanceToSpend);
                 if (allowanceToSpend == 0) {
-                    approvalsRequired.push(cardId);
+                    updateStatusBar("orange", true, "Executing transaction 1 of 2…");
+
+                    // seek approval
+                    const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
+                    console.debug("approvalResult:");
+                    console.debug(approvalResult);
+                    const receipt = await approvalResult.wait();
+                    console.debug("receipt:");
+                    console.debug(receipt);
+
+                    updateStatusBar("orange", true, "Executing transaction 2 of 2…");
+                } else {
+                    updateStatusBar("orange", true, "Executing transaction 1 of 1…");
                 }
-            }
 
-            // TODO report to the user how many approvals are required (via status bar or otherwise)
+                // perform wrap
+                const wrapResult = await wrapperContract.wrap(cardId, wrapNum);
+                console.debug("wrapResult:");
+                const receipt2 = await wrapResult.wait();
+                console.debug("receipt2:");
+                console.debug(receipt2);
 
-            console.debug(approvalsRequired.length + " approvals required. executing...");
-            for (let i = 0; i < approvalsRequired.length; i++) {
-                // seek approval
-                const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + approvalsRequired[i]], constants.erc20Abi, signer);
-                const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
-                console.debug("approvalResult:");
-                console.debug(approvalResult);
-                const receipt = await approvalResult.wait();
+                // update balances
+                populateBalances();
+
+                // reset state of status bar
+                updateStatusBar("green", false, "Wrap completed");
+            } else {
+                console.debug("Wrapping multiple types of cards...");
+
+                // what do i gotta do here.
+                // 1. get approvals for all erc20s that don't yet have approval
+                // 2. submit bulk txn
+
+                let approvalsRequired = [];
+                for (let i = 0; i < Object.keys(nonzeroWrapValues).length; i++) {
+                    const cardId = Object.keys(nonzeroWrapValues)[i];
+                    console.debug("cardId: " + cardId);
+
+                    const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + cardId], constants.erc20Abi, signer);
+                    // if we have approval already, skip
+                    const allowanceToSpend = await erc20Contract.allowance(userAddr, constants.wrapperAddr);
+                    console.debug("current allowance: " + allowanceToSpend);
+                    if (allowanceToSpend == 0) {
+                        approvalsRequired.push(cardId);
+                    }
+                }
+
+                console.debug(approvalsRequired.length + " approvals required. executing...");
+                for (let i = 0; i < approvalsRequired.length; i++) {
+                    // Update status bar with how many more transactions are required
+                    updateStatusBar("orange", true, "Executing transaction " + (i+1) + " of " + (approvalsRequired.length+1) + "…");
+
+                    // seek approval
+                    const erc20Contract = await new ethers.Contract(constants.curioAddresses["CRO" + approvalsRequired[i]], constants.erc20Abi, signer);
+                    const approvalResult = await erc20Contract.approve(constants.wrapperAddr, 2000);
+                    console.debug("approvalResult:");
+                    console.debug(approvalResult);
+                    const receipt = await approvalResult.wait();
+                    console.debug("receipt:");
+                    console.debug(receipt);
+                }
+
+                // Update status bar with how many more transactions are required
+                console.log(approvalsRequired.length)
+                console.log(approvalsRequired.length+1)
+                console.log((approvalsRequired.length+1))
+                updateStatusBar("orange", true, "Executing transaction " + (approvalsRequired.length+1) + " of " + (approvalsRequired.length+1) + "…");
+
+                // perform wrap
+                const cardIdList = Object.keys(nonzeroWrapValues);
+                let wrapNumList = [];
+                for (let i = 0; i < cardIdList.length; i++) {
+                    wrapNumList.push(nonzeroWrapValues[cardIdList[i]]);
+                }
+                console.debug("About to wrap card IDs " + JSON.stringify(cardIdList) + " with balances " + JSON.stringify(wrapNumList));
+                const wrapResult = await wrapperContract.wrapBatch(cardIdList, wrapNumList);
+                console.debug("wrapResult:");
+                const receipt = await wrapResult.wait();
                 console.debug("receipt:");
                 console.debug(receipt);
 
-                // TODO decrement txns remaining (status bar)
+                // update balances
+                populateBalances();
+
+                // reset state of status bar
+                updateStatusBar("green", false, "Wrap completed");
             }
 
-            // perform wrap
-            const cardIdList = Object.keys(nonzeroWrapValues);
-            let wrapNumList = [];
-            for (let i = 0; i < cardIdList.length; i++) {
-                wrapNumList.push(nonzeroWrapValues[cardIdList[i]]);
-            }
-            console.debug("About to wrap card IDs " + JSON.stringify(cardIdList) + " with balances " + JSON.stringify(wrapNumList));
-            const wrapResult = await wrapperContract.wrapBatch(cardIdList, wrapNumList);
-            console.debug("wrapResult:");
-            const receipt = await wrapResult.wait();
-            console.debug("receipt:");
-            console.debug(receipt);
-
-            // finally, update balances
-            populateBalances();
-        }
-
-    } else {
-        console.debug("handling unwrap");
-
-        // find nonzero values
-        const nonzeroUnwrapValues = Object.keys(wrapitup["unwrap"])
-            .filter(key => wrapitup["unwrap"][key] > 0)
-            .reduce((res, key) => (res[key] = wrapitup["unwrap"][key], res), {});
-        console.debug("nonzeroUnwrapValues: " + JSON.stringify(nonzeroUnwrapValues));
-
-        if (Object.keys(nonzeroUnwrapValues).length == 0) {
-            console.debug("No values found to unwrap!");
-        } else if (Object.keys(nonzeroUnwrapValues).length == 1) {
-            console.debug("Unwrapping 1 type of card...");
-            const cardId = Object.keys(nonzeroUnwrapValues)[0];
-            const unwrapNum = nonzeroUnwrapValues[cardId];
-
-            console.debug(wrapperContract.unwrap);
-            console.debug("cardId: " + cardId);
-            console.debug("unwrapNum: " + unwrapNum);
-
-            const unwrapResult = await wrapperContract.unwrap(cardId, unwrapNum);
-            console.debug("unwrapResult:");
-            const receipt2 = await unwrapResult.wait();
-            console.debug("receipt2:");
-            console.debug(receipt2);
-
-            // finally, update balances
-            populateBalances();
         } else {
-            console.debug("Unwrapping multiple types of cards...");
+            console.debug("handling unwrap");
 
-            const cardIdList = Object.keys(nonzeroUnwrapValues);
-            let unwrapNumList = [];
-            for (let i = 0; i < cardIdList.length; i++) {
-                unwrapNumList.push(nonzeroUnwrapValues[cardIdList[i]]);
+            // find nonzero values
+            const nonzeroUnwrapValues = Object.keys(wrapitup["unwrap"])
+                .filter(key => wrapitup["unwrap"][key] > 0)
+                .reduce((res, key) => (res[key] = wrapitup["unwrap"][key], res), {});
+            console.debug("nonzeroUnwrapValues: " + JSON.stringify(nonzeroUnwrapValues));
+
+            if (Object.keys(nonzeroUnwrapValues).length == 0) {
+                console.debug("No values found to unwrap!");
+            } else if (Object.keys(nonzeroUnwrapValues).length == 1) {
+                console.debug("Unwrapping 1 type of card...");
+                const cardId = Object.keys(nonzeroUnwrapValues)[0];
+                const unwrapNum = nonzeroUnwrapValues[cardId];
+
+                console.debug(wrapperContract.unwrap);
+                console.debug("cardId: " + cardId);
+                console.debug("unwrapNum: " + unwrapNum);
+
+                updateStatusBar("orange", true, "Executing transaction 1 of 1…");
+                const unwrapResult = await wrapperContract.unwrap(cardId, unwrapNum);
+                console.debug("unwrapResult:");
+                const receipt2 = await unwrapResult.wait();
+                console.debug("receipt2:");
+                console.debug(receipt2);
+
+                // update balances
+                populateBalances();
+
+                // reset state of status bar
+                updateStatusBar("green", false, "Unwrap completed");
+            } else {
+                console.debug("Unwrapping multiple types of cards...");
+
+                const cardIdList = Object.keys(nonzeroUnwrapValues);
+                let unwrapNumList = [];
+                for (let i = 0; i < cardIdList.length; i++) {
+                    unwrapNumList.push(nonzeroUnwrapValues[cardIdList[i]]);
+                }
+
+                updateStatusBar("orange", true, "Executing transaction 1 of 1…");
+                console.debug("About to unwrap card IDs " + JSON.stringify(cardIdList) + " with balances " + JSON.stringify(unwrapNumList));
+                const unwrapResult = await wrapperContract.unwrapBatch(cardIdList, unwrapNumList);
+                console.debug("unwrapResult:");
+                const receipt = await unwrapResult.wait();
+                console.debug("receipt:");
+                console.debug(receipt);
+
+                // update balances
+                populateBalances();
+
+                // reset state of status bar
+                updateStatusBar("green", false, "Unwrap completed");
             }
-            console.debug("About to unwrap card IDs " + JSON.stringify(cardIdList) + " with balances " + JSON.stringify(unwrapNumList));
-            const unwrapResult = await wrapperContract.unwrapBatch(cardIdList, unwrapNumList);
-            console.debug("unwrapResult:");
-            const receipt = await unwrapResult.wait();
-            console.debug("receipt:");
-            console.debug(receipt);
-
-            // finally, update balances
-            populateBalances();
+        }
+    } catch (e) {
+        if (e.code) {
+            console.log("Received Metamask errorcode: " + e.code);
+            if (e.code == 4001) {
+                updateStatusBar("red", false, "Metamask error 4001: User denied transaction signature");
+            } else {
+                updateStatusBar("red", false, "Metamask error " + e.code);
+            }
         }
 
+        // rethrow for logging
+        throw e;
     }
 }
 
@@ -441,12 +496,18 @@ async function populateBalances() {
             document.getElementById("to-unwrap-" + i).max = balances[i-1];
         }
     });
+
+    // TODO reset <input> fields back to 0
+    for (let i = 1; i <= numCards; i++) {
+        document.getElementById("to-wrap-" + i).value = 0;
+        document.getElementById("to-unwrap-" + i).value = 0;
+    }
 }
 
 // work to perform after connection is established
-async function postConnection(userAddr) {
-    // populate address in top bar
-    document.getElementById("web3").innerText = "Connected as " + userAddr.substring(0, 5) + "…" + userAddr.substring(userAddr.length-3);
+async function postConnection() {
+    // update status bar
+    resetStatusBarToGreen();
 
     // populate cards dynamically
     for (let i = 1; i <= numCards; i++) {
@@ -530,10 +591,6 @@ async function postConnection(userAddr) {
 async function initialize() {
     console.debug("initialize");
 
-    if (debugAddress) {
-        console.error("WARNING! WEBSITE IN DEBUG MODE: user address forced to " + debugAddress);
-    }
-
     if (!provider) {
         console.error("Your browser is not web3 enabled.");
         document.getElementById("install-metamask").classList.remove("hidden");
@@ -543,14 +600,12 @@ async function initialize() {
     getUserAddr().then(userAddr => {
         if (userAddr) {
             // already connected
-            document.getElementById("connection-indicator").classList.add("circle-green");
             document.getElementById("connect-wallet").remove();
             document.getElementById("click-da-cards").classList.remove("hidden");
-            postConnection(userAddr);
+            postConnection();
         } else {
             // prompt user to connect
-            document.getElementById("connection-indicator").classList.add("circle-orange");
-            document.getElementById("web3").innerText = "Connect your wallet to continue";
+            updateStatusBar("orange", false, "Connect your wallet to continue");
             document.getElementById("connect-wallet").classList.remove("hidden");
             document.getElementById("connect-wallet-button").addEventListener("click", connectWallet);
         }

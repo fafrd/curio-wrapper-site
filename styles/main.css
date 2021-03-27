@@ -120,6 +120,7 @@ nav .nav-card {
     margin-top: 2em;
     margin-bottom: 2em;
     transition: 0.2s ease-in-out;
+    border: var(--border);
 }
 
 nav .nav-card:hover {
@@ -193,11 +194,24 @@ nav img {
 /* HEADER GLOBAL */
 
 .circle {
-    background-color: var(--red);
     height: 12px;
     width: 12px;
     border-radius: 100%;
     margin-right: 10px;
+}
+
+.circle-blink {
+    animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+.circle-red {
+    background-color: var(--red);
 }
 
 .circle-orange {
@@ -272,7 +286,7 @@ main .mainbox {
     text-align: center;
     z-index: 9999;
     position: fixed;
-    top: 30%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
