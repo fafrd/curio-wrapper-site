@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import 'regenerator-runtime/runtime'
-//import * as constants from "./constants.js"
-import * as constants from "./rinkeby-constants.js"
+import * as constants from "./constants.js"
+//import * as constants from "./rinkeby-constants.js"
 
 import images_jpg from "./images/*.jpg"
 import images_png from "./images/*.png"
@@ -354,9 +354,9 @@ async function handleWrapClick(event) {
                 }
 
                 // Update status bar with how many more transactions are required
-                console.log(approvalsRequired.length)
-                console.log(approvalsRequired.length+1)
-                console.log((approvalsRequired.length+1))
+                console.debug(approvalsRequired.length)
+                console.debug(approvalsRequired.length+1)
+                console.debug((approvalsRequired.length+1))
                 updateStatusBar("orange", true, "Executing transaction " + (approvalsRequired.length+1) + " of " + (approvalsRequired.length+1) + "…");
 
                 // perform wrap
@@ -437,7 +437,7 @@ async function handleWrapClick(event) {
         }
     } catch (e) {
         if (e.code) {
-            console.log("Received Metamask errorcode: " + e.code);
+            console.warn("Received Metamask errorcode: " + e.code);
             if (e.code == 4001) {
                 updateStatusBar("red", false, "Metamask error 4001: User denied transaction signature");
             } else {
