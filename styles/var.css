@@ -7,6 +7,9 @@
     --pink:#FFECEC;
     /* border */
     --border: 1px solid var(--red);
+    /* frame */
+    --sidebar-width: 20%;
+    --main-width: 60%;
   }
 
 html, a, a:visited, input {
@@ -14,6 +17,7 @@ html, a, a:visited, input {
     font-weight: 600;
     font-size: 0.9em;
     color: var(--red);
+    background-color: var(--pink);
     text-align: center;
 }
 

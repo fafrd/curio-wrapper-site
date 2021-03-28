@@ -18,7 +18,7 @@ footer {
 
 footer .footerfucker {
     display: grid; /* match what's set up for nav */
-    grid-template-columns: 1fr 60% 1fr;
+    grid-template-columns: 1fr var(--main-width) 1fr;
 }
 
 footer .footerfucker > div {
@@ -28,7 +28,9 @@ footer .footerfucker > div {
 }
 
 footer .footer-selector .title {
-    width: 100%;
+    width: var(--sidebar-width);
+    position: absolute;
+    top: -32px;
 }
 
 footer .footer-selector .select-button {
@@ -51,8 +53,6 @@ footer .footer-center-bottom {
     flex-wrap: wrap;
     text-align: center;
     width: 100%;
-    position: absolute;
-    bottom: 0;
 }
 
 .footer-center-bottom p {
@@ -103,7 +103,7 @@ footer .footerdeco .footerart .logo {
 nav {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 60% 1fr;
+    grid-template-columns: 1fr var(--main-width) 1fr;
 
     margin-bottom: 20em;
 
@@ -243,10 +243,10 @@ header {
 main {
     position: fixed;
     overflow-y: scroll;
-    width: 60%;
+    width: var(--main-width);
     height: 100%;
     top: 0;
-    left: 20%;
+    left: var(--sidebar-width);
     background-color: var(--white);
     border: var(--border);
 }
