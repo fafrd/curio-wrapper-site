@@ -1,4 +1,4 @@
-export const wrapperAddr = "0x776C5969b77D0d664DF909E2Ee49a23a192BE472";
+export const wrapperAddr = "0x6b76b9c312E38924b496238e30eD97415f1C63bf";
 
 export const curioAddresses = {
     "CRO1": "0xea17E184b8c71Fa56694BB3fE991Aea53f07AB27",
