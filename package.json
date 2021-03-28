@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "parcel index.html",
-    "build": "parcel build index.html"
+    "build": "parcel build --no-source-maps index.html"
   },
   "dependencies": {
     "ethers": "^5.0.32"
