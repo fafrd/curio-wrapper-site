@@ -141,6 +141,7 @@ nav .nav-card__overlay{
     mix-blend-mode: screen;
     display: none;
     z-index: 3;
+    pointer-events: none;
 }
 
 nav .nav-card__overlay-selected {
@@ -161,6 +162,7 @@ nav img {
     bottom: 0;
     width: 100%;
     z-index: 4;
+    pointer-events: none;
 }
 
 .cell__red {

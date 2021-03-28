@@ -94,17 +94,11 @@ async function getErc1155BalanceBatch(contractAddr, userAddr) {
 }
 
 async function handleCardClick(event) {
-    let currentElement, otherElement; // otherElement is erc1155 if current is erc20, etc
-    currentElement = event.path.find(e => e.localName == "article");
-    if (!currentElement) {
-        throw Error("handleCardClick: unable to find <article> element!");
-    }
-
-    return await _handleCardClick(currentElement, otherElement);
+    return await _handleCardClick(event.target);
 }
 
-async function _handleCardClick(currentElement, otherElement) {
-    let currentCard, currentType;
+async function _handleCardClick(clickedElement) {
+    let currentCard, currentType, currentElement, otherElement;
 
     if (document.getElementById("click-da-cards")) {
         // remove "click the cards" helper image
@@ -113,14 +107,20 @@ async function _handleCardClick(currentElement, otherElement) {
         document.getElementById("middle-line").classList.remove("hidden");
     }
 
-    if (currentElement.id.startsWith("nav-card-erc20")) {
-        currentCard = Number(currentElement.id.substring(15));
+    if (clickedElement.id.startsWith("nav-card-erc20")) {
         currentType = "erc20";
+        currentCard = Number(clickedElement.id.substring(21));
+        // reassign current, other to the <article>s in the <nav>
+        currentElement = document.getElementById("nav-card-erc20-" + currentCard);
         otherElement = document.getElementById("nav-card-erc1155-" + currentCard);
-    } else if (currentElement.id.startsWith("nav-card-erc1155")) {
-        currentCard = Number(currentElement.id.substring(17));
+    } else if (clickedElement.id.startsWith("nav-card-erc1155")) {
+        currentCard = Number(clickedElement.id.substring(23));
         currentType = "erc1155";
+        // reassign current, other to the <article>s in the <nav>
+        currentElement = document.getElementById("nav-card-erc1155-" + currentCard);
         otherElement = document.getElementById("nav-card-erc20-" + currentCard);
+    } else {
+        throw Error("handleCardClick: unable to determine id startswith nav-card.ercXXXX");
     }
 
     if (currentElement.classList.contains("unselected")) {
@@ -171,37 +171,32 @@ async function _handleCardClick(currentElement, otherElement) {
 }
 
 function handleSelectAll(event) {
-    let currentElement = event.path.find(e => e.id.startsWith("select-all") || e.id.startsWith("deselect-all"));
-    if (!currentElement) {
-        throw Error("handleSelectAll: unable to find select button?!");
-    }
-
     for (let i = 1; i <= numCards; i++) {
-        switch (currentElement.id) {
+        switch (event.target.id) {
             case "select-all-unwrapped":
                 // hack- force all to deselected state so handleCardClick works right
                 document.getElementById("nav-card-erc20-" + i).classList.remove("selected");
                 document.getElementById("nav-card-erc20-" + i).classList.add("unselected");
-                _handleCardClick(document.getElementById("nav-card-erc20-" + i), document.getElementById("nav-card-erc1155-" + i));
+                _handleCardClick(document.getElementById("nav-card-erc20-image-" + i));
  
                 break;
             case "deselect-all-unwrapped":
                 // hack- force all to selected state so handleCardClick works right
                 document.getElementById("nav-card-erc20-" + i).classList.remove("unselected");
                 document.getElementById("nav-card-erc20-" + i).classList.add("selected");
-                _handleCardClick(document.getElementById("nav-card-erc20-" + i), document.getElementById("nav-card-erc1155-" + i));
+                _handleCardClick(document.getElementById("nav-card-erc20-image-" + i));
                 break;
             case "select-all-wrapped":
                 // hack- force all to deselected state so handleCardClick works right
                 document.getElementById("nav-card-erc1155-" + i).classList.remove("selected");
                 document.getElementById("nav-card-erc1155-" + i).classList.add("unselected");
-                _handleCardClick(document.getElementById("nav-card-erc1155-" + i), document.getElementById("nav-card-erc20-" + i));
+                _handleCardClick(document.getElementById("nav-card-erc1155-image-" + i), document.getElementById("nav-card-erc20-" + i));
                 break;
             case "deselect-all-wrapped":
                 // hack- force all to selected state so handleCardClick works right
                 document.getElementById("nav-card-erc1155-" + i).classList.remove("unselected");
                 document.getElementById("nav-card-erc1155-" + i).classList.add("selected");
-                _handleCardClick(document.getElementById("nav-card-erc1155-" + i), document.getElementById("nav-card-erc20-" + i));
+                _handleCardClick(document.getElementById("nav-card-erc1155-image-" + i), document.getElementById("nav-card-erc20-" + i));
                 break;
         }
     }
@@ -249,12 +244,7 @@ async function calculateTotalToWrap() {
 }
 
 async function handleWrapClick(event) {
-    let currentElement = event.path.find(e => e.id == "wrap-button" || e.id == "unwrap-button");
-    if (!currentElement) {
-        throw Error("handleWrapClick: unable to find wrap/unwrap button element!");
-    }
-
-    let action = currentElement.id == "wrap-button" ? "wrap" : "unwrap";
+    let action = event.target.id == "wrap-button" ? "wrap" : "unwrap";
 
     const wrapitup = await calculateTotalToWrap();
     console.debug("wrapitup: " + JSON.stringify(wrapitup));
@@ -514,7 +504,7 @@ async function postConnection() {
         document.getElementById("nav").innerHTML += `
         <article id="nav-card-erc20-${i}" class="nav-card unselected">
             <div class="nav-card__overlay"></div>
-            <img class="nav-card__image" src="${images[i]}" alt="Curio${i}">
+            <img id="nav-card-erc20-image-${i}" class="nav-card__image" src="${images[i]}" alt="Curio${i}">
             <div class="label__wrapper">
                 <p class="cell cell__white">CRO${i}</p>
                 <div class="balance__container">
@@ -527,7 +517,7 @@ async function postConnection() {
 
         <article id="nav-card-erc1155-${i}" class="nav-card unselected">
             <div class="nav-card__overlay"></div>
-            <img class="nav-card__image" src="${images[i]}" alt="Curio${i}">
+            <img id="nav-card-erc1155-image-${i}" class="nav-card__image" src="${images[i]}" alt="Curio${i}">
             <div class="label__wrapper">
                 <p class="cell cell__red">WRAPPED</p>
                 <p class="cell cell__white">CRO${i}</p>
