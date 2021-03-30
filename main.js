@@ -239,7 +239,7 @@ async function calculateTotalToWrap() {
         const unwrapAmt = document.getElementById("to-unwrap-" + i).value;
         wrapitup["unwrap"][i] = Number(unwrapAmt) || 0;
     }
-    
+
     return wrapitup;
 }
 
