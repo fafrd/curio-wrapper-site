@@ -133,7 +133,7 @@ nav .nav-card:hover {
     transform: scale(0.95);
 }
 
-nav .nav-card__overlay{
+nav .nav-card__overlay {
     background: var(--red);
     width: 150px;
     height: 200px;
