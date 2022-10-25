@@ -95,7 +95,9 @@ footer .footerdeco .footerart .logo {
     justify-content: center;
 }
 
-
+.link-divider {
+    margin: 0 12px;
+}
 
 
 /* NAV SCAFFOLDING */
