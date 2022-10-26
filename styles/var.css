@@ -21,6 +21,10 @@ html, a, a:visited, input {
     text-align: center;
 }
 
+a.image-link {
+    background-color: initial;
+}
+
 a:hover {
     text-decoration: none;
 }
